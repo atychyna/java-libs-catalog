@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Java & Scala libs and tools</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
+    <style type="text/css">
+        body {
+            padding-top: 60px;
+            padding-bottom: 40px;
+        }
+
+        .navbar-search {
+            padding-right: 9px;
+        }
+
+        .sidebar-nav {
+            padding: 9px 0;
+        }
+
+        .dl-horizontal dt {
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+<script src="js/jquery-1.10.1.js"></script>
+<script src="js/bootstrap.min.js"></script>
+
+<div class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+            <form class="navbar-search pull-left form-inline">
+                <input type="text" class="search-query" placeholder="Search">
+                <label class="checkbox">
+                    <input type="checkbox" checked="true">Java
+                </label>
+                <label class="checkbox">
+                    <input type="checkbox" checked="true">Scala
+                </label>
+            </form>
+            <div class="nav-collapse collapse">
+                <p class="navbar-text pull-right">
+                    Logged in as <a href="#" class="navbar-link">Username</a>
+                </p>
+                <ul class="nav">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="#about">Add project</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <div class="row-fluid">
+        <div class="span3">
+            <div class="well sidebar-nav">
+                <ul class="nav nav-list">
+                    <li class="nav-header">Development tools</li>
+                    <li><a href="projects.html">Build systems (3)</a></li>
+                    <li><a href="projects.html">IDEs (2)</a></li>
+                    <li><a href="projects.html">Continuous Integration (2)</a></li>
+                    <li><a href="projects.html">Version control (4)</a></li>
+                    <li class="nav-header">Quality Assurance</li>
+                    <li><a href="projects.html">Unit testing (3)</a></li>
+                    <li><a href="projects.html">Integration testing (5)</a></li>
+                    <li><a href="projects.html">Load testing (1)</a></li>
+                    <li><a href="projects.html">A/B testing (1)</a></li>
+                    <li class="nav-header">Database</li>
+                    <li><a href="projects.html">Relational (10)</a></li>
+                    <li><a href="projects.html">NoSQL (5)</a></li>
+                    <li><a href="projects.html">Graph (2)</a></li>
+                </ul>
+            </div>
+            <!--/.well -->
+        </div>
+        <!--/span-->
+        <div class="span9">
+            <h2>Apache Maven</h2>
+            <p>Apache Maven is a software project management and comprehension tool. Based on the concept of a project object model (POM), Maven can manage a project's build, reporting and documentation from a central piece of information.</p>
+            <dl class="dl-horizontal">
+                <dt>Language:</dt>
+                <dd>Java</dd>
+                <dt>Version:</dt>
+                <dd>3.0.4</dd>
+                <dt>Homepage:</dt>
+                <dd><a href="http://maven.apache.org/">http://maven.apache.org/</a></dd>
+            </dl>
+            <h3>Maven dependency</h3>
+            <pre>
+&lt;dependency&gt;
+    &lt;groupId>com.google.guava&lt;/groupId&gt;
+    &lt;artifactId>guava-gwt&lt;/artifactId&gt;
+    &lt;version>14.0.1&lt;/version&gt;
+&lt;/dependency&gt;</pre>
+            <h3>SBT dependency</h3>
+            <pre>"com.novus" %% "salat-core" % "0.0.8-SNAPSHOT"</pre>
+        </div>
+        <!--/span-->
+    </div>
+    <!--/row-->
+
+
+    <hr>
+
+    <footer>
+        <p>&copy; Company 2013</p>
+    </footer>
+
+</div>
+<!--/.fluid-container-->
+</body>
+</html>
