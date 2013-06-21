@@ -1,0 +1,25 @@
+@(categories: Seq[model.Category], projectCount: model.Category => Int, project: model.Project)
+
+@import model._
+
+@maintemplate(categories, projectCount) {
+    <h2>@project.name</h2>
+    <p>Apache Maven is a software project management and comprehension tool. Based on the concept of a project object model (POM), Maven can manage a project's build, reporting and documentation from a central piece of information.</p>
+    <dl class="dl-horizontal">
+        <dt>Language:</dt>
+        <dd>Java</dd>
+        <dt>Version:</dt>
+        <dd>3.0.4</dd>
+        <dt>Homepage:</dt>
+        <dd><a href="@project.url">@project.url</a></dd>
+    </dl>
+    <h3>Maven dependency</h3>
+    <pre>
+    &lt;dependency&gt;
+        &lt;groupId>com.google.guava&lt;/groupId&gt;
+        &lt;artifactId>guava-gwt&lt;/artifactId&gt;
+        &lt;version>14.0.1&lt;/version&gt;
+    &lt;/dependency&gt;</pre>
+    <h3>SBT dependency</h3>
+    <pre>"com.novus" %% "salat-core" % "0.0.8-SNAPSHOT"</pre>
+}

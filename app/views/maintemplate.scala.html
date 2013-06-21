@@ -1,0 +1,53 @@
+@(categories: Seq[model.Category], projectCount: model.Category => Int)(content:Html)
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Java & Scala libs and tools</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Bootstrap -->
+    <link href="@routes.Assets.at("stylesheets/bootstrap.min.css")" rel="stylesheet" media="screen">
+    <style type="text/css">
+        body {
+        padding-top: 60px;
+        padding-bottom: 40px;
+        }
+
+        .navbar-search {
+        padding-right: 9px;
+        }
+
+        .sidebar-nav {
+        padding: 9px 0;
+        }
+
+        .dl-horizontal dt {
+        text-align: left;
+        }
+    </style>
+</head>
+<body>
+<script src="@routes.Assets.at("javascripts/jquery-1.10.1.js")"></script>
+<script src="@routes.Assets.at("javascripts/bootstrap.min.js")"></script>
+
+@topnavbar()
+
+<div class="container-fluid">
+    <div class="row-fluid">
+        <div class="span3">
+            @leftnavbar(categories, projectCount)
+        </div>
+        <!--/span-->
+        <div class="span9">
+            @content
+        </div>
+    </div>
+
+    <hr>
+    <footer>
+        <p>&copy; Company 2013</p>
+    </footer>
+</div>
+<!--/.fluid-container-->
+</body>
+</html>

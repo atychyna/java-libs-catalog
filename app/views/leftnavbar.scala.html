@@ -1,0 +1,24 @@
+@(categories: Seq[model.Category], projectCount: model.Category => Int)
+
+@import model._
+
+@link(c:Category) = {
+    @defining(projectCount(c)) { count =>
+            @if(count > 0) {
+                <li><a href="@routes.Application.projects(Some(c.id))">@c.name (@count)</a></li>
+            } else {
+                <li class="disabled"><a href="#">@c.name</a></li>
+            }
+    }
+}
+
+<div class="well sidebar-nav">
+    <ul class="nav nav-list">
+        @for(c <- categories) {
+            <li class="nav-header">@c.name</li>
+            @for(n <- c.children) {
+                @link(n)
+            }
+        }
+    </ul>
+</div>

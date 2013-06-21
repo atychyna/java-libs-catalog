@@ -1,7 +1,86 @@
-@(message: String)
+@(categories: Seq[model.Category], projectCount: model.Category => Int)
 
-@main("Welcome to Play 2.1") {
-    
-    @play20.welcome(message)
-    
+@import model._
+
+@maintemplate(categories, projectCount) {
+<div class="row-fluid">
+    <div class="span6">
+        <h2>Recent projects</h2>
+        <table class="table table-bordered">
+            <tr>
+                <td>Apache Maven</td>
+                <td>3.0.4</td>
+                <td>Java</td>
+            </tr>
+            <tr>
+                <td>Apache Maven</td>
+                <td>3.0.4</td>
+                <td>Java</td>
+            </tr>
+            <tr>
+                <td>Apache Maven</td>
+                <td>3.0.4</td>
+                <td>Java</td>
+            </tr>
+            <tr>
+                <td>Apache Maven</td>
+                <td>3.0.4</td>
+                <td>Java</td>
+            </tr>
+            <tr>
+                <td>Apache Maven</td>
+                <td>3.0.4</td>
+                <td>Java</td>
+            </tr>
+        </table>
+    </div>
+    <!--/span-->
+    <div class="span6">
+        <h2>Most viewed projects</h2>
+        <table class="table table-bordered">
+            <tr>
+                <td>Apache Maven</td>
+                <td>3.0.4</td>
+                <td>Java</td>
+            </tr>
+            <tr>
+                <td>Apache Maven</td>
+                <td>3.0.4</td>
+                <td>Java</td>
+            </tr>
+            <tr>
+                <td>Apache Maven</td>
+                <td>3.0.4</td>
+                <td>Java</td>
+            </tr>
+            <tr>
+                <td>Apache Maven</td>
+                <td>3.0.4</td>
+                <td>Java</td>
+            </tr>
+            <tr>
+                <td>Apache Maven</td>
+                <td>3.0.4</td>
+                <td>Java</td>
+            </tr>
+        </table>
+    </div>
+    <!--/span-->
+</div>
+<!--/row-->
+<div class="row-fluid">
+    <h2>Activity stream</h2>
+
+    <p><a href="#">indy256</a> commented on project <a href="#">Apache Maven</a>
+    <blockquote>this is bullshit, i hate Maven</blockquote>
+    </p>
+
+    <p><a href="#">forest</a> commented on project <a href="#">C++</a>
+    <blockquote>C++ is a horrible language. It's made more horrible by the fact that a lot
+        of substandard programmers use it, to the point where it's much much
+        easier to generate total and utter crap with it. Quite frankly, even if
+        the choice of C were to do *nothing* but keep the C++ programmers out,
+        that in itself would be a huge reason to use C.</blockquote>
+    </p>
+</div>
 }
