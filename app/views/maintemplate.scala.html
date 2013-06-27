@@ -1,4 +1,4 @@
-@(categories: Seq[model.Category], projectCount: model.Category => Int)(content:Html)
+@(ctx: views.ViewContext)(content:Html)
 
 <!DOCTYPE html>
 <html>
@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Bootstrap -->
     <link href="@routes.Assets.at("stylesheets/bootstrap.min.css")" rel="stylesheet" media="screen">
+    <link href="@routes.Assets.at("stylesheets/bootstrap-fileupload.min.css")" rel="stylesheet" media="screen">
     <style type="text/css">
         body {
         padding-top: 60px;
@@ -29,13 +30,13 @@
 <body>
 <script src="@routes.Assets.at("javascripts/jquery-1.10.1.js")"></script>
 <script src="@routes.Assets.at("javascripts/bootstrap.min.js")"></script>
-
+<script src="@routes.Assets.at("javascripts/bootstrap-fileupload.min.js")"></script>
 @topnavbar()
 
 <div class="container-fluid">
     <div class="row-fluid">
         <div class="span3">
-            @leftnavbar(categories, projectCount)
+            @leftnavbar(ctx.categories, ctx.projectCount)
         </div>
         <!--/span-->
         <div class="span9">

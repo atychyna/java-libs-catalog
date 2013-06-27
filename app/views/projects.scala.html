@@ -1,8 +1,8 @@
-@(categories: Seq[model.Category], projectCount: model.Category => Int, projects: Seq[model.Project])
+@(ctx: views.ViewContext)(projects: Seq[model.Project])
 
 @import model._
 
-@maintemplate(categories, projectCount) {
+@maintemplate(ctx) {
     @for(p <- projects) {
         <a href="@routes.Application.project(p.id)"><h2>@p.name</h2></a>
         <p>Apache Maven is a software project management and comprehension tool. Based on the concept of a project object model (POM), Maven can manage a project's build, reporting and documentation from a central piece of information.</p>

@@ -4,7 +4,8 @@ import com.novus.salat.dao.SalatDAO
 import org.bson.types.ObjectId
 import com.google.inject.Inject
 import service.DataImporter
-import model.{Project, Category}
+import model.{MavenScope => Scope, _}
+import SbtDependency.fromMavenDependency
 
 class MongoDataImporter @Inject()(categoryDao: SalatDAO[Category, ObjectId], projectDao: SalatDAO[Project, ObjectId]) extends DataImporter {
   private val categories = Seq(
@@ -31,9 +32,20 @@ class MongoDataImporter @Inject()(categoryDao: SalatDAO[Category, ObjectId], pro
   )
 
   private val projects = Seq(
-    Project(name = "Apache Maven", url = "http://maven.apache.org/", categoryId = category("build tools")),
-    Project(name = "JUnit", url = "http://maven.apache.org/", categoryId = category("unit testing")),
-    Project(name = "Mongo DB", url = "http://maven.apache.org/", categoryId = category("nosql"))
+    Project(name = "Apache Maven",
+      url = "http://maven.apache.org/",
+      categoryId = category("build tools"),
+      scm = Some("https://git-wip-us.apache.org/repos/asf/maven.git")),
+    Project(name = "JUnit",
+      url = "http://junit.org/",
+      categoryId = category("unit testing"),
+      scm = Some("https://github.com/junit-team/junit.git"),
+      wiki = Some("https://github.com/junit-team/junit/wiki"),
+      mavenDependency = Some(MavenDependency("junit", "junit", "4.11", Scope.Test))),
+    Project(name = "Mongo DB",
+      url = "http://maven.apache.org/",
+      categoryId = category("nosql"),
+      scm = Some("https://github.com/mongodb"))
   )
 
   private def category(name: String): ObjectId = {
