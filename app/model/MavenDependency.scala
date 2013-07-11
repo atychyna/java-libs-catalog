@@ -6,6 +6,10 @@ import scala.xml.{Elem, PrettyPrinter}
  * @author Anton Tychyna
  */
 case class MavenDependency(groupId: String, artifactId: String, version: String, scope: MavenScope.Value = MavenScope.Compile) {
+  require(groupId != null, "GroupId can't be null")
+  require(artifactId != null, "ArtifactId can't be null")
+  require(version != null, "Version can't be null")
+
   def dependencyDefinition(implicit p: PrettyPrinter) = {
     val d: Elem =
     <dependency>

@@ -2,10 +2,11 @@ package service.mongo
 
 import com.google.inject.Inject
 import service.{CategoryService, ProjectService}
-import model.{Category, Project}
+import model.{MavenDependency, Category, Project}
 import com.novus.salat.dao.SalatDAO
 import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.casbah.query.Imports._
+import org.apache.maven.model.Model
 
 /**
  * @author Anton Tychyna
@@ -14,7 +15,7 @@ class MongoProjectService @Inject()(categoryService: CategoryService, val salatD
 
   def all = companion.findAll().toList
 
-  def findByCategory(category: Category) = companion.find(MongoDBObject("categoryId" -> category.id)).toList
+  def findByCategory(category: Category) = companion.find(MongoDBObject("categories" -> category.id)).toList
 
   def findById(id: ObjectId) = companion.findOneById(id)
 
@@ -26,4 +27,12 @@ class MongoProjectService @Inject()(categoryService: CategoryService, val salatD
   }
 
   def findByName(name: String, ignoreCase: Boolean) = companion.findOne(MongoDBObject(if (ignoreCase) "nameLowerCase" -> name.toLowerCase else "name" -> name))
+
+  def save(p: Project) = {
+    findByName(p.name) match {
+      case None => companion.save(p)
+      case Some(_) => throw new IllegalArgumentException(s"Project with name '$p.name' already exist")
+    }
+    p
+  }
 }

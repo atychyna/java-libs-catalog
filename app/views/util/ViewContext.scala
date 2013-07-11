@@ -1,5 +1,4 @@
-package views
-
+package views.util
 
 /**
  * @author Anton Tychyna

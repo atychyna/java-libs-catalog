@@ -1,10 +1,127 @@
-@(ctx: views.ViewContext)
+@(pf: Form[model.Project], step: Int=0)(implicit ctx: views.util.ViewContext)
+@import helper._
+@import views.util.bootstrap._
+@import views.html.util.{bootstrap => custom}
 
-@maintemplate(ctx) {
-    <h2>Add project</h2>
-    <div class="fileupload fileupload-new" data-provides="fileupload">
-        <div class="input-append">
-            <div class="uneditable-input span3"><i class="icon-file fileupload-exists"></i> <span class="fileupload-preview"></span></div><span class="btn btn-file"><span class="fileupload-new">Select file</span><span class="fileupload-exists">Change</span><input type="file" /></span><a href="#" class="btn fileupload-exists" data-dismiss="fileupload">Remove</a>
+@scripts = {
+<script src="@routes.Assets.at("javascripts/bootstrap-fileupload.min.js")"></script>
+<script src="@routes.Assets.at("javascripts/parsley.min.js")"></script>
+<script lang="text/javascript">
+function importRadioValue() {
+    return $('input[name=optionsRadios]:checked').val();
+}
+function currentStep() {
+    return wizard().wizard('selectedItem').step - 1;
+}
+function selectStep(step) {
+    for(var i=0; i < step; i++) {
+        wizard().wizard('next')
+    }
+}
+function wizard() {
+    return $('#MyWizard');
+}
+$(function() {
+    wizard().wizard('setState');
+    selectStep(@step);
+    $('#fileForm').parsley({
+        successClass: 'success',
+        errorClass: 'error',
+        errors: {
+            classHandler: function(el) {
+                return $(el).closest('.control-group');
+            },
+            errorsWrapper: '<span class=\"help-inline\"></span>',
+            errorElem: '<span></span>',
+            container: function (element, isRadioOrCheckbox) {
+                var $container = element.closest('.control-group').find(".parsley-container");
+                if ($container.length === 0) {
+                    return null;
+                }
+                return $container;
+            }
+        }
+    });
+    $('input[name=optionsRadios]').change(function() {
+        var v = $(this).val();
+        if (v != 'maven') {
+            $('#ImportMaven').hide();
+        } else {
+            $('#ImportMaven').show();
+        }
+    });
+    wizard().on('change', function(e, data) {
+        console.log(data.step);
+        if (data.step===1 && data.direction==='next') {
+            if (importRadioValue() == 'maven') {
+                $('#fileForm').submit();
+                return e.preventDefault();
+            }
+        } else if (data.step===2 && data.direction==='next') {
+            $('#projectForm').submit();
+            return e.preventDefault();
+        } else if (data.step===3 && data.direction==='next') {
+            $('#createForm').submit();
+            return e.preventDefault();
+        }
+    });
+    wizard().on('finished', function() {
+        $('#createForm').submit();
+    });
+});
+</script>
+}
+
+@styles = {
+    .step-content {
+        border: 1px solid #D4D4D4;
+        border-top: 0;
+        border-radius: 0 0 4px 4px;
+        padding: 20px;
+        margin-bottom: 10px;
+    }
+}
+
+@maintemplate(scripts, styles) {
+    <div id="MyWizard" class="wizard">
+        <ul class="steps">
+            <li data-target="#step1" class="active"><span class="badge badge-info">1</span>Import from<span class="chevron"></span></li>
+            <li data-target="#step2"><span class="badge">2</span>Review<span class="chevron"></span></li>
+            <li data-target="#step3"><span class="badge">3</span>Create project<span class="chevron"></span></li>
+        </ul>
+    </div>
+    <div class="step-content">
+        <div class="step-pane active" id="step1">
+            @helper.form(action = routes.AddProject.uploadPom, 'id -> "fileForm", 'enctype -> "multipart/form-data") {
+            <label class="radio">
+                <input type="radio" name="optionsRadios" id="optionsRadios1" value="manual" checked>
+                Enter data manually
+            </label>
+            <label class="radio">
+                <input type="radio" name="optionsRadios" id="optionsRadios2" value="maven">
+                Import from Maven POM
+            </label>
+            <div id="ImportMaven" class="control-group" style="display:none">
+                @custom.fileUpload()
+            </div>
+            }
         </div>
+        <div class="step-pane" id="step2">
+            @helper.form(action = routes.AddProject.reviewProject, 'id -> "projectForm") {
+                @helper.inputText(pf("Name"))
+                @helper.inputText(pf("Url"))
+                @helper.textarea(pf("Description"), 'rows -> 4)
+                <input type="hidden" name="Id" value='@pf("Id").value' >
+            }
+        </div>
+        <div class="step-pane" id="step3">
+            @if(step == 2) {
+                @projecttemplate(pf.get)
+                @helper.form(action = routes.AddProject.createProject, 'id -> "createForm") {
+                }
+            }
+        </div>
+        <input type="button" class="btn btn-prev" id="btnWizardPrev" value="Prev">
+        <input type="button" class="btn btn-next" id="btnWizardNext" value="Next" data-last="Create">
     </div>
 }

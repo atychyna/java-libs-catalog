@@ -14,7 +14,8 @@ object ApplicationSettings {
     "com.novus" %% "salat-core" % "1.9.2-SNAPSHOT",
     "com.google.inject" % "guice" % "3.0",
     "com.tzavellas" % "sse-guice" % "0.7.1",
-    "se.radley" %% "play-plugins-salat" % "1.2"
+    "se.radley" %% "play-plugins-salat" % "1.2",
+    "org.apache.maven" % "maven-model" % "3.0.5"
   )
 
   val testDependencies = Seq(

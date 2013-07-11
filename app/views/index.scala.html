@@ -1,8 +1,8 @@
-@(ctx: views.ViewContext)
+@(implicit ctx: views.util.ViewContext)
 
 @import model._
 
-@maintemplate(ctx) {
+@maintemplate() {
 <div class="row-fluid">
     <div class="span6">
         <h2>Recent projects</h2>

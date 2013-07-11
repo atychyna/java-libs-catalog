@@ -1,5 +1,6 @@
-import com.google.inject.{Injector, ConfigurationException, Guice}
+import com.google.inject.{Module, Injector, ConfigurationException, Guice}
 import com.novus.salat.Context
+import com.tzavellas.sse.guice.ScalaModule
 import play.api._
 import play.api.Play.current
 import scala.reflect.runtime.universe._
@@ -30,9 +31,17 @@ package object configuration {
   val config = Play.configuration
 
   val injector = {
-    Play.isDev match {
-      case true => Guice.createInjector(new DevModule)
-      case false => Guice.createInjector(new ProdModule)
+    val module = config.getString("guice.module").map {
+      i => {
+        val m = runtimeMirror(getClass.getClassLoader)
+        val symbol = m.classSymbol(Class.forName(i))
+        val clazz = m.reflectClass(symbol)
+        val constructor = clazz.reflectConstructor(symbol.toType.declaration(nme.CONSTRUCTOR).asMethod)
+        constructor(Play.current).asInstanceOf[Module]
+      }
+    }.getOrElse {
+      if (Play.isDev) new DevModule else new ProdModule
     }
+    Guice.createInjector(module)
   }
 }

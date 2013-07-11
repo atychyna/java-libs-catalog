@@ -1,40 +1,9 @@
-@(ctx: views.ViewContext)(project: model.Project)
+@(project: model.Project)(implicit ctx: views.util.ViewContext)
 
 @import model._
 @import SbtDependency._
 @import scala.xml.Utility._
 
-@maintemplate(ctx) {
-    <h2>@project.name</h2>
-    <p>Apache Maven is a software project management and comprehension tool. Based on the concept of a project object model (POM), Maven can manage a project's build, reporting and documentation from a central piece of information.</p>
-    <dl class="dl-horizontal">
-        <dt>Language:</dt>
-        <dd>Java</dd>
-        <dt>Version:</dt>
-        <dd>3.0.4</dd>
-        <dt>Homepage:</dt>
-        <dd><a href="@project.url">@project.url</a></dd>
-        @if(project.wiki.isDefined) {
-        <dt>Wiki:</dt>
-        <dd><a href="@project.url">@project.wiki.get</a></dd>
-        }
-        @if(project.bugTracker.isDefined) {
-        <dt>Bug Tracker:</dt>
-        <dd><a href="@project.url">@project.bugTracker.get</a></dd>
-        }
-    </dl>
-    @if(project.scm.isDefined) {
-    <h3>Source code</h3>
-    <pre>@project.scm.get</pre>
-    }
-    @if(project.mavenDependency.isDefined) {
-    @defining(project.mavenDependency.get) { d=>
-    <h3>Maven dependency</h3>
-    <pre>@d.dependencyDefinition</pre>
-    }}
-    @defining(project.sbtDependency orElse {project.mavenDependency map fromMavenDependency}) { d=>
-    @if(d.isDefined) {
-    <h3>SBT dependency</h3>
-    <pre>@d.get.dependencyDefinition</pre>
-    }}
+@maintemplate() {
+    @projecttemplate(project)
 }

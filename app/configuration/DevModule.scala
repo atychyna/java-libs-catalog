@@ -1,13 +1,14 @@
 package configuration
 
 import com.tzavellas.sse.guice.ScalaModule
-import service.{DataImporter, ProjectService, CategoryService}
+import service.{ProjectImporter, InitialData, ProjectService, CategoryService}
 import model.{Project, Category}
 import service.mongo.{MongoDataImporter, MongoProjectService, MongoCategoryService}
 import se.radley.plugin.salat._
 import play.api.Application
 import com.novus.salat.dao.SalatDAO
 import org.bson.types.ObjectId
+import service.maven.MavenImporter
 
 /**
  * @author Anton Tychyna
@@ -18,7 +19,9 @@ class DevModule(implicit app: Application) extends ScalaModule {
     bind[SalatDAO[Project, ObjectId]].toInstance(new SalatDAO[Project, ObjectId](mongoCollection("projects")) {})
     bind[CategoryService].to[MongoCategoryService]
     bind[ProjectService].to[MongoProjectService]
-    bind[DataImporter].to[MongoDataImporter]
+    bind[ProjectImporter].to[MavenImporter]
+    bind[InitialData].to[MongoDataImporter]
+    bindConstant().annotatedWithName("dropExisting").to(false)
   }
 }
 

@@ -1,0 +1,6 @@
+@(p: model.Project)(implicit ctx: views.util.ViewContext)
+
+@maintemplate() {
+    <h2>Project successfully created</h2>
+    <p>View created project at <a href="@routes.Application.project(p.id)">@p.name</a></p>
+}

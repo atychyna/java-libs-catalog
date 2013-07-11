@@ -1,11 +1,11 @@
-@(ctx: views.ViewContext)(projects: Seq[model.Project])
+@(projects: Seq[model.Project])(implicit ctx: views.util.ViewContext)
 
 @import model._
 
-@maintemplate(ctx) {
+@maintemplate() {
     @for(p <- projects) {
         <a href="@routes.Application.project(p.id)"><h2>@p.name</h2></a>
-        <p>Apache Maven is a software project management and comprehension tool. Based on the concept of a project object model (POM), Maven can manage a project's build, reporting and documentation from a central piece of information.</p>
+        <p>@p.description</p>
         <dl class="dl-horizontal">
             <dt>Language:</dt>
             <dd>Java</dd>

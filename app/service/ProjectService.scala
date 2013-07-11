@@ -16,4 +16,6 @@ trait ProjectService {
   def findByName(name: String, ignoreCase: Boolean = true): Option[Project]
 
   def countInCategory(c: Category): Int
+
+  def save(p: Project): Project
 }

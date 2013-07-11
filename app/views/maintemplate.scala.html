@@ -1,12 +1,13 @@
-@(ctx: views.ViewContext)(content:Html)
+@(scripts: Html=Html(""), styles: Html=Html(""))(content: Html)(implicit ctx: views.util.ViewContext)
 
 <!DOCTYPE html>
-<html>
+<html class="fuelux">
 <head>
     <title>Java & Scala libs and tools</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Bootstrap -->
-    <link href="@routes.Assets.at("stylesheets/bootstrap.min.css")" rel="stylesheet" media="screen">
+    <!--<link href="@routes.Assets.at("stylesheets/bootstrap.min.css")" rel="stylesheet" media="screen">-->
+    <link href="@routes.Assets.at("stylesheets/fuelux.min.css")" rel="stylesheet" media="screen">
     <link href="@routes.Assets.at("stylesheets/bootstrap-fileupload.min.css")" rel="stylesheet" media="screen">
     <style type="text/css">
         body {
@@ -15,22 +16,20 @@
         }
 
         .navbar-search {
-        padding-right: 9px;
+        padding-right: 20px;
         }
 
-        .sidebar-nav {
-        padding: 9px 0;
-        }
-
-        .dl-horizontal dt {
+        .fuelux .dl-horizontal dt {
         text-align: left;
         }
+        @styles
     </style>
 </head>
 <body>
 <script src="@routes.Assets.at("javascripts/jquery-1.10.1.js")"></script>
-<script src="@routes.Assets.at("javascripts/bootstrap.min.js")"></script>
-<script src="@routes.Assets.at("javascripts/bootstrap-fileupload.min.js")"></script>
+<!--<script src="@routes.Assets.at("javascripts/bootstrap.min.js")"></script>-->
+<script src="@routes.Assets.at("javascripts/loader.js")"></script>
+@scripts
 @topnavbar()
 
 <div class="container-fluid">
