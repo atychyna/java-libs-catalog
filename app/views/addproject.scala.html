@@ -51,7 +51,6 @@ $(function() {
         }
     });
     wizard().on('change', function(e, data) {
-        console.log(data.step);
         if (data.step===1 && data.direction==='next') {
             if (importRadioValue() == 'maven') {
                 $('#fileForm').submit();
@@ -68,6 +67,17 @@ $(function() {
     wizard().on('finished', function() {
         $('#createForm').submit();
     });
+    $('a.remove-section').click(function() {
+        var el = $($(this).attr('href')).detach();
+        el.appendTo($('#store'));
+    });
+    $('a.add-section').click(function() {
+        var el = $('#store').find($(this).attr('href')).detach();
+        $('#step2controls').append(el);
+    });
+    @if(pf("maven.scope").value.isDefined) {
+        $('a.add-section[href="#maven"]').click();
+    }
 });
 </script>
 }
@@ -108,11 +118,33 @@ $(function() {
         </div>
         <div class="step-pane" id="step2">
             @helper.form(action = routes.AddProject.reviewProject, 'id -> "projectForm") {
-                @helper.inputText(pf("Name"))
-                @helper.inputText(pf("Url"))
-                @helper.textarea(pf("Description"), 'rows -> 4)
-                <input type="hidden" name="Id" value='@pf("Id").value' >
+                <div id="step2controls">
+                    @helper.inputText(pf("name"))
+                    @helper.inputText(pf("url"))
+                    @helper.textarea(pf("description"), 'rows -> 4)
+                    <input type="hidden" name="id" value='@pf("id").value'/>
+                </div>
+                <div class="select btn-group" data-resize="auto">
+                    <button type="button" data-toggle="dropdown" class="btn dropdown-toggle">
+                        Add
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li data-value="1"><a href="#maven" class="add-section">Add Maven info</a></li>
+                        <li data-value="2"><a href="#sbt">Add SBT info</a></li>
+                    </ul>
+                </div>
             }
+        </div>
+        <div id="store" style="display:none">
+            <fieldset id="maven">
+                <a href="#maven" class="remove-section">Remove section</a>
+                <legend>Maven</legend>
+                @helper.inputText(pf("maven.groupId"))
+                @helper.inputText(pf("maven.artifactId"))
+                @helper.inputText(pf("maven.version"))
+                @helper.select(pf("maven.scope"), model.MavenScope.values.map {v=>(v.toString,v.toString)}.toSeq)
+            </fieldset>
         </div>
         <div class="step-pane" id="step3">
             @if(step == 2) {

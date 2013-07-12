@@ -4,7 +4,7 @@ import play.api.mvc.{Result, Action}
 import play.api.data.Form
 import play.api.data.Forms._
 import scala.Some
-import model.Project
+import model.{MavenScope, MavenDependency, Project}
 import com.google.inject.{Singleton, Inject}
 import service.{ProjectImporter, ProjectService, CategoryService}
 import play.api.libs.concurrent.Execution.Implicits._
@@ -24,14 +24,21 @@ class AddProject @Inject()(val categoryService: CategoryService,
   val CacheKeyPrefixReviewProject = "review.item."
   val addProjectForm = Form(
     mapping(
-      "Id" -> text,
-      "Name" -> nonEmptyText,
-      "Url" -> nonEmptyText,
-      "Description" -> nonEmptyText
-    )((id, name, url, desc) =>
-      Project(id = new ObjectId(id), name = name, url = url, description = desc))
-      (p =>
-        Some(p.id.toString, p.name, p.url, p.description))
+      "id" -> text,
+      "name" -> nonEmptyText,
+      "url" -> nonEmptyText,
+      "description" -> nonEmptyText,
+      "maven" -> optional(mapping(
+        "groupId" -> nonEmptyText,
+        "artifactId" -> nonEmptyText,
+        "version" -> nonEmptyText,
+        "scope" -> nonEmptyText)
+        ((groupId, artifactId, version, scope) =>
+          MavenDependency(groupId, artifactId, version, MavenScope.withName(scope)))
+        (d => Some(d.groupId, d.artifactId, d.version, d.scope.toString))))
+      ((id, name, url, desc, maven) =>
+        Project(id = new ObjectId(id), name = name, url = url, description = desc, mavenDependency = maven))
+      (p => Some(p.id.toString, p.name, p.url, p.description, p.mavenDependency))
   )
 
   def index = Action {

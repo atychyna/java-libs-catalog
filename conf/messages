@@ -1,0 +1,7 @@
+maven.groupId = Group ID
+maven.artifactId = Artifact ID
+maven.version = Version
+maven.scope = Scope
+name = Name
+url = Url
+description = Description
