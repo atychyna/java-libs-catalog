@@ -5,55 +5,57 @@
 
 @scripts = {
 <script src="@routes.Assets.at("javascripts/bootstrap-fileupload.min.js")"></script>
-<script src="@routes.Assets.at("javascripts/parsley.min.js")"></script>
 <script lang="text/javascript">
-function importRadioValue() {
-    return $('input[name=optionsRadios]:checked').val();
+ko.validation.configure({
+    registerExtenders: true,
+    messagesOnModified: true,
+    insertMessages: false,
+    parseInputAttributes: true
+});
+
+var importModel = {
+    fileName: ko.observable(),
+    importOption: ko.observable("manual"),
+    verifyAndNextStep: function() {
+        if (this.importOption() != "maven") {
+            return true;
+        } else if (this.isValid()) {
+            $('#fileForm').submit();
+        } else {
+            this.errors.showAllMessages();
+            return false;
+        }
+    }
+};
+importModel.errors = ko.validation.group(importModel);
+
+var createModel = {
+    showMaven: ko.observable(@pf("maven.scope").value.isDefined)
 }
-function currentStep() {
-    return wizard().wizard('selectedItem').step - 1;
-}
-function selectStep(step) {
-    for(var i=0; i < step; i++) {
-        wizard().wizard('next')
+
+function WizardObject(e)  {
+    this.wizard = e;
+    e.wizard('setState');
+    this.currentStep = function() {
+        return this.wizard.wizard('selectedItem').step - 1;
+    };
+    this.on = $.proxy(this.wizard.on, this.wizard);
+    this.selectStep = function(step) {
+        for(var i=0; i < step; i++) {
+            this.wizard.wizard('next')
+        }
     }
 }
-function wizard() {
-    return $('#MyWizard');
-}
+
 $(function() {
-    wizard().wizard('setState');
-    selectStep(@step);
-    $('#fileForm').parsley({
-        successClass: 'success',
-        errorClass: 'error',
-        errors: {
-            classHandler: function(el) {
-                return $(el).closest('.control-group');
-            },
-            errorsWrapper: '<span class=\"help-inline\"></span>',
-            errorElem: '<span></span>',
-            container: function (element, isRadioOrCheckbox) {
-                var $container = element.closest('.control-group').find(".parsley-container");
-                if ($container.length === 0) {
-                    return null;
-                }
-                return $container;
-            }
-        }
-    });
-    $('input[name=optionsRadios]').change(function() {
-        var v = $(this).val();
-        if (v != 'maven') {
-            $('#ImportMaven').hide();
-        } else {
-            $('#ImportMaven').show();
-        }
-    });
-    wizard().on('change', function(e, data) {
+    ko.applyBindings(importModel, $('#step1').get(0));
+    ko.applyBindings(createModel, $('#step2').get(0));
+
+    var w = new WizardObject($('#MyWizard'));
+    w.selectStep(@step);
+    w.on('change', function(e, data) {
         if (data.step===1 && data.direction==='next') {
-            if (importRadioValue() == 'maven') {
-                $('#fileForm').submit();
+            if (!importModel.verifyAndNextStep()) {
                 return e.preventDefault();
             }
         } else if (data.step===2 && data.direction==='next') {
@@ -64,20 +66,9 @@ $(function() {
             return e.preventDefault();
         }
     });
-    wizard().on('finished', function() {
+    w.on('finished', function() {
         $('#createForm').submit();
     });
-    $('a.remove-section').click(function() {
-        var el = $($(this).attr('href')).detach();
-        el.appendTo($('#store'));
-    });
-    $('a.add-section').click(function() {
-        var el = $('#store').find($(this).attr('href')).detach();
-        $('#step2controls').append(el);
-    });
-    @if(pf("maven.scope").value.isDefined) {
-        $('a.add-section[href="#maven"]').click();
-    }
 });
 </script>
 }
@@ -103,17 +94,15 @@ $(function() {
     <div class="step-content">
         <div class="step-pane active" id="step1">
             @helper.form(action = routes.AddProject.uploadPom, 'id -> "fileForm", 'enctype -> "multipart/form-data") {
-            <label class="radio">
-                <input type="radio" name="optionsRadios" id="optionsRadios1" value="manual" checked>
-                Enter data manually
-            </label>
-            <label class="radio">
-                <input type="radio" name="optionsRadios" id="optionsRadios2" value="maven">
-                Import from Maven POM
-            </label>
-            <div id="ImportMaven" class="control-group" style="display:none">
-                @custom.fileUpload()
-            </div>
+                <label class="radio">
+                    <input type="radio" name="optionsRadios" id="optionsRadios1" value="manual" data-bind="checked: importOption">
+                    Enter data manually
+                </label>
+                <label class="radio">
+                    <input type="radio" name="optionsRadios" id="optionsRadios2" value="maven" data-bind="checked: importOption">
+                    Import from Maven POM
+                </label>
+                @custom.fileUpload('id -> "ImportMaven", Symbol("data-bind") -> "visible: importOption() === 'maven'", 'style -> "display:none", '_kobinding -> "fileName")
             }
         </div>
         <div class="step-pane" id="step2">
@@ -124,27 +113,29 @@ $(function() {
                     @helper.textarea(pf("description"), 'rows -> 4)
                     <input type="hidden" name="id" value='@pf("id").value'/>
                 </div>
+                <div data-bind="if: showMaven">
+                <fieldset id="maven">
+                    <a data-bind="click: function() {showMaven(false)}">Remove section</a>
+                    <legend>Maven</legend>
+                    @helper.inputText(pf("maven.groupId"))
+                    @helper.inputText(pf("maven.artifactId"))
+                    @helper.inputText(pf("maven.version"))
+                    @helper.select(pf("maven.scope"), model.MavenScope.values.map {v=>(v.toString,v.toString)}.toSeq)
+                </fieldset>
+                </div>
                 <div class="select btn-group" data-resize="auto">
                     <button type="button" data-toggle="dropdown" class="btn dropdown-toggle">
                         Add
                         <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu">
-                        <li data-value="1"><a href="#maven" class="add-section">Add Maven info</a></li>
+                        <li data-value="1"><a data-bind="click: function() {showMaven(true)}">Add Maven info</a></li>
                         <li data-value="2"><a href="#sbt">Add SBT info</a></li>
                     </ul>
                 </div>
             }
         </div>
         <div id="store" style="display:none">
-            <fieldset id="maven">
-                <a href="#maven" class="remove-section">Remove section</a>
-                <legend>Maven</legend>
-                @helper.inputText(pf("maven.groupId"))
-                @helper.inputText(pf("maven.artifactId"))
-                @helper.inputText(pf("maven.version"))
-                @helper.select(pf("maven.scope"), model.MavenScope.values.map {v=>(v.toString,v.toString)}.toSeq)
-            </fieldset>
         </div>
         <div class="step-pane" id="step3">
             @if(step == 2) {

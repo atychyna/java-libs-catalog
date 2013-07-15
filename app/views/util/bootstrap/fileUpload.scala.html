@@ -1,6 +1,10 @@
 @(args: (Symbol,Any)*)
 
-<div class="fileupload fileupload-new" data-provides="fileupload" @toHtmlArgs(args.toMap)>
+@koBinding = @{ args.toMap.get('_kobinding).map(_.toString) }
+@dataBinding = @{ args.toMap.get(Symbol("data-bind")).map(d => d.toString+koBinding.map(_=>",").getOrElse("")).getOrElse("") }
+
+<div class="control-group" @if(koBinding.isDefined) {data-bind="@dataBinding css: { error: @{koBinding.get}.isModified() && !@{koBinding.get}.isValid() }"} @toHtmlArgs(args.toMap.filterKeys(_ != '_kobinding))>
+<div class="fileupload fileupload-new" data-provides="fileupload">
     <div class="input-append">
         <div class="uneditable-input span3">
             <i class="icon-file fileupload-exists"></i><span class="fileupload-preview"></span>
@@ -8,9 +12,10 @@
                     <span class="btn btn-file">
                         <span class="fileupload-new">Select file</span>
                         <span class="fileupload-exists">Change</span>
-                        <input type="file" name="pom" id="pomFile" data-required="true"/>
+                        <input type="file" name="pom" id="pomFile" @if(koBinding.isDefined) {data-bind="value: @koBinding.get"} required/>
                     </span>
         <a href="#" class="btn fileupload-exists" data-dismiss="fileupload">Remove</a>
     </div>
-    <span class="parsley-container"></span>
+    <span @if(koBinding.isDefined) {data-bind="validationMessage: @koBinding.get"} class="help-inline"></span>
+</div>
 </div>
