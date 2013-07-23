@@ -9,4 +9,6 @@ package object util {
       closeable.close()
     }
   }
+
+  def stringForUrl(s: String) = s.toLowerCase.replaceAllLiterally(" ", "-")
 }

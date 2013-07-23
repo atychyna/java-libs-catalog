@@ -1,6 +1,6 @@
 package service
 
-import java.io.{InputStream, File}
+import java.io.InputStream
 import model.Project
 
 /**

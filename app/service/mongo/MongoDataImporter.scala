@@ -5,7 +5,6 @@ import org.bson.types.ObjectId
 import com.google.inject.Inject
 import service.{CategoryService, InitialData}
 import model.{MavenScope => Scope, _}
-import SbtDependency.fromMavenDependency
 import com.google.inject.name.Named
 
 class MongoDataImporter @Inject()(categoryDao: SalatDAO[Category, ObjectId],

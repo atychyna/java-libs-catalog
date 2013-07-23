@@ -3,4 +3,4 @@ package service
 /**
  * @author Anton Tychyna
  */
-trait InitialData extends (()=>Unit)
+trait InitialData extends (() => Unit)

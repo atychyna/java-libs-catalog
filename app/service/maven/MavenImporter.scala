@@ -1,11 +1,10 @@
 package service.maven
 
 import model.{MavenDependency, Project}
-import java.io.{IOException, InputStream, FileInputStream, File}
+import java.io.InputStream
 import service.ProjectImporter
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader
 import util._
-import org.apache.maven.model.Model
 
 /**
  * @author Anton Tychyna

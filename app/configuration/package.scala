@@ -1,6 +1,5 @@
 import com.google.inject.{Module, Injector, ConfigurationException, Guice}
 import com.novus.salat.Context
-import com.tzavellas.sse.guice.ScalaModule
 import play.api._
 import play.api.Play.current
 import scala.reflect.runtime.universe._

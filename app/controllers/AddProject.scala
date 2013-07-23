@@ -10,7 +10,6 @@ import service.{ProjectImporter, ProjectService, CategoryService}
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.cache.Cache
 import org.bson.types.ObjectId
-import play.api.Logger
 import java.io.FileInputStream
 
 /**

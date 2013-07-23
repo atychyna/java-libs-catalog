@@ -2,7 +2,6 @@ package controllers
 
 import service.{ProjectService, CategoryService}
 import com.google.inject.{Inject, Singleton}
-import org.bson.types.ObjectId
 import play.api.libs.concurrent.Execution.Implicits._
 
 @Singleton
@@ -31,5 +30,5 @@ class Application @Inject()(val categoryService: CategoryService,
     }
   }
 
-  private def unfriendlyString(s:String) = s.trim.replaceAllLiterally("_", " ").replaceAllLiterally("-", " ")
+  private def unfriendlyString(s: String) = s.trim.replaceAllLiterally("_", " ").replaceAllLiterally("-", " ")
 }

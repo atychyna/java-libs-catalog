@@ -2,11 +2,10 @@ package service.mongo
 
 import com.google.inject.Inject
 import service.{CategoryService, ProjectService}
-import model.{MavenDependency, Category, Project}
+import model.{Category, Project}
 import com.novus.salat.dao.SalatDAO
 import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.casbah.query.Imports._
-import org.apache.maven.model.Model
 
 /**
  * @author Anton Tychyna

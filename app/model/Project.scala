@@ -1,6 +1,7 @@
 package model
 
 import org.bson.types.ObjectId
+import util.stringForUrl
 import com.novus.salat.annotations._
 import org.joda.time.DateTime
 
@@ -25,7 +26,7 @@ case class Project(id: ObjectId = new ObjectId,
   require(description != null, "Description can't be null")
   require(url != null, "Url can't be null")
   @Persist val nameLowerCase = name.toLowerCase
-  val urlFriendlyName = name.toLowerCase.replaceAllLiterally(" ", "-")
+  val urlFriendlyName = stringForUrl(name)
   val hasDependencies = mavenDependency.isDefined || sbtDependency.isDefined
 }
 

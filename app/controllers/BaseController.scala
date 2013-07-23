@@ -1,7 +1,6 @@
 package controllers
 
 import play.api.mvc._
-import play.api.mvc.BodyParsers.parse
 import scala.concurrent._
 import model.Category
 import views.util.ViewContext
