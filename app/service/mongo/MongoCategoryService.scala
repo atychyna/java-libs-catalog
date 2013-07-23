@@ -22,7 +22,7 @@ class MongoCategoryService @Inject()(val salatDao: SalatDAO[Category, ObjectId])
     }
   }
 
-  def all = companion.findAll().toList
+  def all = companion.findAll().toList.sortBy(_.name)
 
   def findById(id: ObjectId) = findRecursively(_.id == id)(companion.findAll().toStream)
 

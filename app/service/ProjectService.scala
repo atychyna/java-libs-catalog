@@ -17,5 +17,5 @@ trait ProjectService {
 
   def countInCategory(c: Category): Int
 
-  def save(p: Project): Project
+  def save(p: Project): Either[Exception, Project]
 }

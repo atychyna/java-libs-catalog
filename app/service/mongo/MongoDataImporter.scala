@@ -13,7 +13,7 @@ class MongoDataImporter @Inject()(categoryDao: SalatDAO[Category, ObjectId],
                                   categoryService: CategoryService,
                                   @Named("dropExisting") dropExisting: Boolean) extends InitialData {
 
-  private val categories = Seq(
+  private lazy val categories = Seq(
     Category(name = "Development Tools",
       children = Seq(
         Category(name = "Build Tools"),
@@ -36,7 +36,7 @@ class MongoDataImporter @Inject()(categoryDao: SalatDAO[Category, ObjectId],
       ))
   )
 
-  private val projects = Seq(
+  private lazy val projects = Seq(
     Project(name = "Apache Maven",
       url = "http://maven.apache.org/",
       description = "Apache Maven is a software project management and comprehension tool. Based on the concept of a project object model (POM), Maven can manage a project's build, reporting and documentation from a central piece of information.",
@@ -52,12 +52,13 @@ class MongoDataImporter @Inject()(categoryDao: SalatDAO[Category, ObjectId],
     Project(name = "Mongo DB",
       url = "http://maven.apache.org/",
       description = "MongoDB (from \"humongous\") is an open-source document database, and the leading NoSQL database. Written in C++.",
+      languages = ProjectLang.ValueSet(ProjectLang.Java, ProjectLang.Scala),
       categories = category("nosql"),
       scm = Some("https://github.com/mongodb"))
   )
 
   private def category(name: String): Seq[ObjectId] = {
-    categoryService.findByName(name).map(c => Seq(c.id)).getOrElse(throw new IllegalArgumentException(s"Category $name doesn't exist"))
+    categoryService.findByName(name).map(c => Seq(c.id)).getOrElse(throw new IllegalArgumentException(s"Category ${'"'}$name${'"'} doesn't exist"))
   }
 
   override def apply() {

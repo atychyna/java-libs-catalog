@@ -1,0 +1,10 @@
+@(projects: Seq[model.Project])(implicit ctx: views.util.ViewContext)
+
+@import model._
+
+@for(p <- projects) {
+    <h2><a href="@routes.Application.project(p.urlFriendlyName)">@p.name</a></h2>
+    <p>@p.description</p>
+    @projectfooter(p)
+    <hr>
+}

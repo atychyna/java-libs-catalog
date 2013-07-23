@@ -2,6 +2,7 @@
 @import helper._
 @import views.util.bootstrap._
 @import views.html.util.{bootstrap => custom}
+@import play.api.libs.json.Json
 
 @scripts = {
 <script src="@routes.Assets.at("javascripts/bootstrap-fileupload.min.js")"></script>
@@ -30,7 +31,8 @@ var importModel = {
 importModel.errors = ko.validation.group(importModel);
 
 var createModel = {
-    showMaven: ko.observable(@pf("maven.scope").value.isDefined)
+    showMaven: ko.observable(@pf("maven.scope").value.isDefined),
+    showSbt: ko.observable(@pf("sbt").value.isDefined)
 }
 
 function WizardObject(e)  {
@@ -50,6 +52,11 @@ function WizardObject(e)  {
 $(function() {
     ko.applyBindings(importModel, $('#step1').get(0));
     ko.applyBindings(createModel, $('#step2').get(0));
+
+    $('.selectpicker').selectpicker({style: "input-xlarge"});
+    @if(!pf("categories").indexes.isEmpty) {
+    $('#categories').selectpicker('val', @Html(Json.stringify(Json.toJson(pf("categories").indexes.map(i => pf("categories[%s]".format(i)).value.get)))));
+    }
 
     var w = new WizardObject($('#MyWizard'));
     w.selectStep(@step);
@@ -108,21 +115,43 @@ $(function() {
         <div class="step-pane" id="step2">
             @helper.form(action = routes.AddProject.reviewProject, 'id -> "projectForm") {
                 <div id="step2controls">
-                    @helper.inputText(pf("name"))
-                    @helper.inputText(pf("url"))
-                    @helper.textarea(pf("description"), 'rows -> 4)
+                    @helper.inputText(pf("name"), 'class -> "input-xlarge")
+                    @helper.inputText(pf("url"), 'class -> "input-xlarge")
+                    @helper.textarea(pf("description"), 'rows -> 4, 'class -> "input-xlarge")
+                    <div class="control-group @if(pf("categories").hasErrors) {error}">
+                        <label class="control-label">Category</label>
+                        <div class="controls">
+                            <select class="selectpicker" id="categories" name="categories[]" multiple data-selected-text-format="count > 2">
+                                @for(c <- ctx.categories) {
+                                <optgroup label="@c.name">
+                                        @for(n <- c.children) {
+                                        <option value="@n.id">@n.name</option>
+                                        }
+                                    }
+                            </select>
+                            <span class="help-inline">@pf("categories").errors.map(_.message).mkString(", ")</span>
+                        </div>
+                    </div>
                     <input type="hidden" name="id" value='@pf("id").value'/>
                 </div>
                 <div data-bind="if: showMaven">
                 <fieldset id="maven">
-                    <a data-bind="click: function() {showMaven(false)}">Remove section</a>
+                    <button class="btn btn-mini" data-bind="click: function() {showMaven(false)}"><i class="icon-remove"></i>Remove section</button>
                     <legend>Maven</legend>
                     @helper.inputText(pf("maven.groupId"))
                     @helper.inputText(pf("maven.artifactId"))
                     @helper.inputText(pf("maven.version"))
-                    @helper.select(pf("maven.scope"), model.MavenScope.values.map {v=>(v.toString,v.toString)}.toSeq)
+                    @helper.select(pf("maven.scope"), model.MavenScope.values.map {v=>(v.toString,v.toString)}.toSeq, '_showConstraints -> false)
                 </fieldset>
                 </div>
+                <div data-bind="if: showSbt">
+                <fieldset id="sbt">
+                    <button class="btn btn-mini" data-bind="click: function() {showSbt(false)}"><i class="icon-remove"></i>Remove section</button>
+                    <legend>SBT</legend>
+                    @helper.inputText(pf("sbt"))
+                </fieldset>
+                </div>
+                <hr/>
                 <div class="select btn-group" data-resize="auto">
                     <button type="button" data-toggle="dropdown" class="btn dropdown-toggle">
                         Add
@@ -130,7 +159,7 @@ $(function() {
                     </button>
                     <ul class="dropdown-menu">
                         <li data-value="1"><a data-bind="click: function() {showMaven(true)}">Add Maven info</a></li>
-                        <li data-value="2"><a href="#sbt">Add SBT info</a></li>
+                        <li data-value="2"><a data-bind="click: function() {showSbt(true)}">Add SBT info</a></li>
                     </ul>
                 </div>
             }
@@ -144,7 +173,7 @@ $(function() {
                 }
             }
         </div>
-        <input type="button" class="btn btn-prev" id="btnWizardPrev" value="Prev">
-        <input type="button" class="btn btn-next" id="btnWizardNext" value="Next" data-last="Create">
+        <input type="button" class="btn btn-prev btn-primary" id="btnWizardPrev" value="Prev">
+        <input type="button" class="btn btn-next btn-primary" id="btnWizardNext" value="Next" data-last="Create">
     </div>
 }

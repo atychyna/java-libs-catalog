@@ -5,7 +5,7 @@
 @link(c:Category) = {
     @defining(projectCount(c)) { count =>
             @if(count > 0) {
-                <li><a href="@routes.Application.projects(Some(c.id))">@c.name (@count)</a></li>
+                <li><a href="@routes.Application.projects(Some(c.urlFriendlyName))">@c.name (@count)</a></li>
             } else {
                 <li class="disabled"><a href="#">@c.name</a></li>
             }

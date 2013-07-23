@@ -29,10 +29,11 @@ class MongoProjectService @Inject()(categoryService: CategoryService, val salatD
   def findByName(name: String, ignoreCase: Boolean) = companion.findOne(MongoDBObject(if (ignoreCase) "nameLowerCase" -> name.toLowerCase else "name" -> name))
 
   def save(p: Project) = {
-    findByName(p.name) match {
-      case None => companion.save(p)
-      case Some(_) => throw new IllegalArgumentException(s"Project with name '$p.name' already exist")
+    if (findByName(p.name).isDefined) {
+      Left(new IllegalArgumentException(s"Project with name '$p.name' already exist"))
+    } else {
+      companion.save(p)
+      Right(p)
     }
-    p
   }
 }

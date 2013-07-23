@@ -5,3 +5,4 @@ maven.scope = Scope
 name = Name
 url = Url
 description = Description
+sbt = SBT

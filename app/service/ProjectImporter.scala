@@ -7,5 +7,5 @@ import model.Project
  * @author Anton Tychyna
  */
 trait ProjectImporter {
-  def importFromMavenPOM(s: InputStream): Project
+  def importFromMavenPOM(s: InputStream): Either[Exception, Project]
 }

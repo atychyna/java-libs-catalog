@@ -10,24 +10,26 @@ class Application @Inject()(val categoryService: CategoryService,
                             val projectService: ProjectService) extends BaseController {
 
   def index = AsyncAction {
-    Ok(views.html.index.apply)
+    Ok(views.html.index.apply(projectService.all))
   }
 
-  def project(id: ObjectId) = AsyncAction {
-    projectService.findById(id).map({
+  def project(name: String) = AsyncAction {
+    projectService.findByName(unfriendlyString(name)).map({
       project => Ok(views.html.project(project))
-    }).getOrElse(NotFound(s"Project with id $id doesn't exist"))
+    }).getOrElse(NotFound(s"Project with name ${'"'}$name${'"'} doesn't exist"))
   }
 
   def allProjects = projects()
 
-  def projects(categoryId: Option[ObjectId] = None) = AsyncAction {
+  def projects(category: Option[String] = None) = AsyncAction {
     val view = views.html.projects
-    categoryId match {
+    category match {
       case None => Ok(view(projectService.all))
-      case Some(id) => categoryService.findById(id).map({
+      case Some(name) => categoryService.findByName(unfriendlyString(name)).map({
         category => Ok(view(projectService.findByCategory(category)))
-      }).getOrElse(NotFound(s"Category with id $categoryId doesn't exist"))
+      }).getOrElse(NotFound(s"Category ${'"'}$name${'"'} doesn't exist"))
     }
   }
+
+  private def unfriendlyString(s:String) = s.trim.replaceAllLiterally("_", " ").replaceAllLiterally("-", " ")
 }

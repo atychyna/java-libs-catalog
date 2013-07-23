@@ -41,7 +41,8 @@ object ApplicationBuild extends Build {
     version := appVersion,
     scalaVersion := s.scalaVersion,
     libraryDependencies ++= appDependencies ++ testDependencies,
-    resolvers ++= s.resolvers
+    resolvers ++= s.resolvers,
+    scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature")
   )
 
   val main = play.Project(appName, appVersion, appDependencies).settings(

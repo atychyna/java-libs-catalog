@@ -4,7 +4,7 @@ import play.api.mvc.{Result, Action}
 import play.api.data.Form
 import play.api.data.Forms._
 import scala.Some
-import model.{MavenScope, MavenDependency, Project}
+import model.{SbtDependency, MavenScope, MavenDependency, Project}
 import com.google.inject.{Singleton, Inject}
 import service.{ProjectImporter, ProjectService, CategoryService}
 import play.api.libs.concurrent.Execution.Implicits._
@@ -14,6 +14,9 @@ import play.api.Logger
 import java.io.FileInputStream
 
 /**
+ * Add new project workflow is '''uploadPom -> reviewProject -> createProject''' (for import from Maven POM) or
+ * '''{user enters data manually} -> reviewProject -> createProject'''
+
  * @author Anton Tychyna
  */
 @Singleton
@@ -25,9 +28,10 @@ class AddProject @Inject()(val categoryService: CategoryService,
   val addProjectForm = Form(
     mapping(
       "id" -> text,
-      "name" -> nonEmptyText,
+      "name" -> nonEmptyText.verifying("Project with this name already exists", projectService.findByName(_).isEmpty),
       "url" -> nonEmptyText,
       "description" -> nonEmptyText,
+      "categories" -> list(nonEmptyText).verifying("This field is required", !_.isEmpty),
       "maven" -> optional(mapping(
         "groupId" -> nonEmptyText,
         "artifactId" -> nonEmptyText,
@@ -35,10 +39,12 @@ class AddProject @Inject()(val categoryService: CategoryService,
         "scope" -> nonEmptyText)
         ((groupId, artifactId, version, scope) =>
           MavenDependency(groupId, artifactId, version, MavenScope.withName(scope)))
-        (d => Some(d.groupId, d.artifactId, d.version, d.scope.toString))))
-      ((id, name, url, desc, maven) =>
-        Project(id = new ObjectId(id), name = name, url = url, description = desc, mavenDependency = maven))
-      (p => Some(p.id.toString, p.name, p.url, p.description, p.mavenDependency))
+        (d => Some(d.groupId, d.artifactId, d.version, d.scope.toString))),
+      "sbt" -> optional(text.verifying("Incorrect value", SbtDependency.parse(_).successful)))
+      ((id, name, url, desc, cats, maven, sbt) =>
+        Project(id = new ObjectId(id), name = name, url = url, description = desc, categories = cats.map(new ObjectId(_)), mavenDependency = maven, sbtDependency = sbt.map(SbtDependency.parse(_).get)))
+      (p =>
+        Some(p.id.toString, p.name, p.url, p.description, p.categories.map(_.toString).toList, p.mavenDependency, p.sbtDependency.map(_.dependencyDefinition)))
   )
 
   def index = Action {
@@ -51,18 +57,25 @@ class AddProject @Inject()(val categoryService: CategoryService,
       request.body.file("pom").map {
         p => projectImporter.importFromMavenPOM(new FileInputStream(p.ref.file))
       }.map {
-        p => Ok(views.html.addproject(addProjectForm.fill(p), step = 1))
-      }.getOrElse(BadRequest("Error importing pom.xml"))
+        p => p.fold({
+          e => InternalServerError(s"Error importing pom.xml: ${e.getMessage}")
+        }, {
+          pr => Ok(views.html.addproject(addProjectForm.fill(pr), step = 1))
+        })
+      }.getOrElse(BadRequest("No pom.xml uploaded"))
   }
 
   def reviewProject = Action {
     implicit r =>
       import play.api.Play.current
+      // user submits form with project data
       addProjectForm.bindFromRequest.fold(
+        // validation error(s), show em to user
         formWithErrors => {
           BadRequest(views.html.addproject(formWithErrors, step = 1))
         },
         value => {
+          // step1: we need to store new project temporarily while user's reviewing it
           Cache.set(CacheKeyPrefixReviewProject + value.id, value)
           Ok(views.html.addproject(addProjectForm.fill(value), step = 2))
             .withSession(SessionKeyReviewProject -> value.id.toString)
@@ -77,9 +90,12 @@ class AddProject @Inject()(val categoryService: CategoryService,
         i =>
           Cache.getAs[Project](CacheKeyPrefixReviewProject + i).map {
             p => {
+              // step2: remove project stored during step1 from temp storage
               Cache.remove(i)
-              projectService.save(p)
-              Ok(views.html.addprojectdone(p)).withNewSession
+              projectService.save(p) match {
+                case Left(e) => InternalServerError(s"Error saving $p: ${e.getMessage}")
+                case Right(pr) => Ok(views.html.addprojectdone(pr)).withNewSession
+              }
             }
           }.getOrElse(NotFound(s"No product with id $i found in review cache"))
       }

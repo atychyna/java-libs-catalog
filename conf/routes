@@ -4,9 +4,9 @@
 
 # Main pages
 GET     /                           @controllers.Application.index
-GET     /projects                   @controllers.Application.projects(categoryId: Option[ObjectId])
+GET     /projects                   @controllers.Application.projects(category: Option[String])
 GET     /projects/all               @controllers.Application.allProjects
-GET     /projects/:id               @controllers.Application.project(id: ObjectId)
+GET     /projects/:name             @controllers.Application.project(name: String)
 
 # Add (import) project
 GET     /addproject                 @controllers.AddProject.index

@@ -11,11 +11,11 @@ import service.{CategoryService, ProjectService}
  * @author Anton Tychyna
  */
 trait BaseController extends Controller {
-  def AsyncAction(f: => Result)(implicit execctx : scala.concurrent.ExecutionContext): Action[AnyContent] = AsyncAction(parse.anyContent)(_ => f)
+  def AsyncAction(f: => Result)(implicit execctx: scala.concurrent.ExecutionContext): Action[AnyContent] = AsyncAction(parse.anyContent)(_ => f)
 
-  def AsyncAction(f: Request[AnyContent] => Result)(implicit execctx : scala.concurrent.ExecutionContext): Action[AnyContent] = AsyncAction(parse.anyContent)(f)
+  def AsyncAction(f: Request[AnyContent] => Result)(implicit execctx: scala.concurrent.ExecutionContext): Action[AnyContent] = AsyncAction(parse.anyContent)(f)
 
-  def AsyncAction[A](bp: BodyParser[A])(f: Request[A] => Result)(implicit execctx : scala.concurrent.ExecutionContext): Action[A] = Action(bp) {
+  def AsyncAction[A](bp: BodyParser[A])(f: Request[A] => Result)(implicit execctx: scala.concurrent.ExecutionContext): Action[A] = Action(bp) {
     request =>
       Async {
         future {
@@ -27,7 +27,7 @@ trait BaseController extends Controller {
   private def countProjectsInCategory(c: Category) = projectService.countInCategory(c)
 
   implicit def viewContext: ViewContext = {
-    ViewContext(categoryService.all, countProjectsInCategory)
+    ViewContext(categoryService.all, countProjectsInCategory, categoryService.findById)
   }
 
   def projectService: ProjectService

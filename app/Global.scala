@@ -14,6 +14,12 @@ object Global extends GlobalSettings {
   }
 
   override def onStart(app: Application) {
+    registerMongoConversions()
     injector.bean[InitialData].map(_.apply())
+  }
+
+  private def registerMongoConversions() {
+    com.mongodb.casbah.commons.conversions.scala.RegisterConversionHelpers()
+    com.mongodb.casbah.commons.conversions.scala.RegisterJodaTimeConversionHelpers()
   }
 }

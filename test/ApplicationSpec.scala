@@ -18,7 +18,7 @@ class ApplicationSpec extends Specification {
 
       status(home) must equalTo(OK)
       contentType(home) must beSome.which(_ == "text/html")
-      contentAsString(home) must contain("Recent projects")
+      contentAsString(home) must contain("Activity stream")
     }
 
     "list projects" in new WithGuiceApplication(classOf[TestModule]) {
@@ -38,7 +38,7 @@ class ApplicationSpec extends Specification {
       val p = projectService.findByName("Apache Maven")
       p must beSome
 
-      val project = route(FakeRequest(GET, "/projects/" + p.get.id)).get
+      val project = route(FakeRequest(GET, "/projects/" + p.get.urlFriendlyName)).get
       status(project) must equalTo(OK)
       contentAsString(project) must contain(p.get.name) and contain(p.get.url)
     }

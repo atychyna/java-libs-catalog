@@ -28,7 +28,9 @@ class AddProjectSpec extends Specification {
       val addProject = i.bean[AddProject].get
       val projectImporter = i.bean[ProjectImporter].get
       val projectService = i.bean[ProjectService].get
-      val project = projectImporter.importFromMavenPOM(pom)
+      val either = projectImporter.importFromMavenPOM(pom)
+      either must beRight
+      val project = either.right.get.copy(categories = Seq(new ObjectId))
       project must not beNull
 
       val form = addProject.addProjectForm.fill(project)
@@ -48,6 +50,7 @@ class AddProjectSpec extends Specification {
       projectSaved.get.name must beEqualTo(project.name)
       projectSaved.get.url must beEqualTo(project.url)
       projectSaved.get.description must beEqualTo(project.description)
+      projectSaved.get.categories must beEqualTo(project.categories)
     }
 
     "create project" in {

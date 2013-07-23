@@ -1,0 +1,18 @@
+@(p: model.Project, withCreated: Boolean = false, withLanguages: Boolean = true)(implicit ctx: views.util.ViewContext)
+
+<div class="project-footer">
+    @if(withCreated) {
+    <span class="badge">Created @ctx.dateTimeFormat.print(p.created)</span>
+    }
+    <span class="badge badge-success">Updated @ctx.dateTimeFormat.print(p.lastModified)</span>
+    <div class="pull-right">
+        @if(withLanguages) {
+        @for(l <- p.languages) {
+        <span class="label">@l</span>
+        }}
+        @for(c <- p.categories;
+        cat <- ctx.categoryById(c)) {
+        <span class="label">@cat.name</span>
+        }
+    </div>
+</div>
