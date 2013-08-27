@@ -15,7 +15,9 @@ object ApplicationSettings {
     "com.google.inject" % "guice" % "3.0",
     "com.tzavellas" % "sse-guice" % "0.7.1",
     "se.radley" %% "play-plugins-salat" % "1.2",
-    "org.apache.maven" % "maven-model" % "3.0.5"
+    "org.apache.maven" % "maven-model" % "3.0.5",
+    "eu.henkelmann" % "actuarius_2.10.0" % "0.2.6",
+    "me.lessis" %% "hubcat" % "0.1.1"
   )
 
   val testDependencies = Seq(

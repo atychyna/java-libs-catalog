@@ -4,6 +4,94 @@
 @import SbtDependency._
 @import scala.xml.Utility._
 
-@maintemplate() {
+@scripts = {
+<script lang="text/javascript">
+    var projectModel = {
+        showAddComment: ko.observable(false),
+        showNewComment: ko.observable(true),
+        toggleAddComment: function() {
+            this.showNewComment(!this.showNewComment());
+            this.showAddComment(!this.showAddComment());
+        }
+    }
+    $(function() {
+        ko.applyBindings(projectModel);
+    });
+</script>
+}
+
+@styles = {
+    .comment-textarea {
+        width:446px!important;
+    }
+    .comment-div {
+        margin-top: 10px;
+        width: 460px!important;
+    }
+    .avatar-div {
+        width: 100px!important;
+        text-align: center;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+    }
+    .avatar-image {
+        width:60px;
+        margin: 0 auto;
+    }
+    .comment.well {
+        padding: 10px;
+    }
+    .comment td {
+        vertical-align:top;
+        padding-right:10px;
+    }
+    .comment td.text {
+        padding-left: 10px;
+    }
+    .btn-group {
+        padding-top: 20px;
+    }
+}
+
+@maintemplate(scripts, styles) {
     @projecttemplate(project)
+    @if(!ctx.isAnonymous) {
+        <div class="btn-group">
+            <button class="btn btn-danger" data-bind="click: function() {alert('adasd');}">Delete Project</button>
+        </div>
+    }
+    <hr/>
+    <h3>Comments</h3>
+    @for((c,i) <- project.comments.zipWithIndex) {
+        <div class="comment well" id="comment@i">
+            <table>
+                <tr>
+                    <td class="avatar">
+                        <div class="avatar-div"><div class="avatar-image"><a href="http://critterapp.pagodabox.com/others/admin" class="thumbnail"><img
+                                src="http://critterapp.pagodabox.com/img/user.jpg" alt=""></a></div>
+                            <small><strong>@c.author</strong></small>
+                        </div>
+                    </td>
+                    <td class="text">
+                        <p>@Html(c.text)</p>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    }
+    @if(!ctx.isAnonymous) {
+        <button class="btn btn-info" data-bind="visible: showNewComment, click: toggleAddComment">Post New Comment</button>
+        <div class="row-fluid" data-bind="visible: showAddComment">
+            <div class="well span12">
+                @helper.form(action = routes.Application.addComment, 'id -> "commentForm") {
+                    <input type="hidden" name="projectId" value='@project.id'/>
+                    <textarea class="span12" id="new_message" name="comment"
+                              placeholder="Type in your message" rows="5"></textarea>
+                    <button class="btn btn-info" type="submit">Add Comment</button>
+                    <button class="btn" type="button" data-bind="click: toggleAddComment">Cancel</button>
+                }
+            </div>
+        </div>
+    }
 }

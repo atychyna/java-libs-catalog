@@ -22,7 +22,7 @@ class ApplicationSpec extends Specification {
     }
 
     "list projects" in new WithGuiceApplication(classOf[TestModule]) {
-      val projects = route(FakeRequest(GET, "/projects/all")).get
+      val projects = route(FakeRequest(GET, "/projects")).get
 
       status(projects) must equalTo(OK)
 

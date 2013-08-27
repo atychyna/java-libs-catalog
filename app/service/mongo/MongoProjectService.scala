@@ -6,6 +6,7 @@ import model.{Category, Project}
 import com.novus.salat.dao.SalatDAO
 import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.casbah.query.Imports._
+import com.mongodb.WriteConcern
 
 /**
  * @author Anton Tychyna
@@ -18,21 +19,17 @@ class MongoProjectService @Inject()(categoryService: CategoryService, val salatD
 
   def findById(id: ObjectId) = companion.findOneById(id)
 
-  def countInCategory(c: Category) = {
-    def countRecursively(c: Category): Int = {
-      findByCategory(c).size + c.children.map(countRecursively).sum
-    }
-    countRecursively(c)
-  }
-
   def findByName(name: String, ignoreCase: Boolean) = companion.findOne(MongoDBObject(if (ignoreCase) "nameLowerCase" -> name.toLowerCase else "name" -> name))
 
   def save(p: Project) = {
     if (findByName(p.name).isDefined) {
       Left(new IllegalArgumentException(s"Project with name '$p.name' already exist"))
     } else {
-      companion.save(p)
-      Right(p)
+      util.checkError(companion.save(p))(p)
     }
+  }
+
+  def update(p: Project) = {
+    util.checkError(companion.update(MongoDBObject("_id" -> p.id), p, false, false, new WriteConcern))(p)
   }
 }

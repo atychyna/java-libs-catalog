@@ -1,3 +1,6 @@
+import com.mongodb.WriteResult
+import java.lang.RuntimeException
+import scala.language.reflectiveCalls
 /**
  * @author Anton Tychyna
  */
@@ -11,4 +14,12 @@ package object util {
   }
 
   def stringForUrl(s: String) = s.toLowerCase.replaceAllLiterally(" ", "-")
+
+  def checkError[T](r: WriteResult)(t: => T): Either[Exception, T] = {
+    if (r.getError != null) {
+      Left(new RuntimeException(r.getError))
+    } else {
+      Right(t)
+    }
+  }
 }

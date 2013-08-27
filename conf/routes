@@ -5,8 +5,8 @@
 # Main pages
 GET     /                           @controllers.Application.index
 GET     /projects                   @controllers.Application.projects(category: Option[String])
-GET     /projects/all               @controllers.Application.allProjects
 GET     /projects/:name             @controllers.Application.project(name: String)
+POST    /addcomment                 @controllers.Application.addComment
 
 # Add (import) project
 GET     /addproject                 @controllers.AddProject.index

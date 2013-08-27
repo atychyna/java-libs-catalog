@@ -1,6 +1,8 @@
 package model
 
 import scala.util.parsing.combinator._
+import scala.language.existentials
+import scala.language.implicitConversions
 
 /**
  * @author Anton Tychyna
@@ -16,7 +18,7 @@ case class SbtDependency(groupId: String, artifactId: String, revision: String, 
   }
 }
 
-object SbtDependency extends SbtDependencyParser {
+object SbtDependency {
   implicit def fromMavenDependency(d: MavenDependency): SbtDependency = {
     val scope = d.scope match {
       case s if s != MavenScope.Provided && s != MavenScope.System => s.toString
@@ -25,10 +27,16 @@ object SbtDependency extends SbtDependencyParser {
     SbtDependency(d.groupId, d.artifactId, d.version, Some(scope))
   }
 
-  def parse(s: String): ParseResult[SbtDependency] = parse(dep, s)
+  object SbtParser extends SbtDependencyParser
+
+  class SbtTransformer {
+    def parse(s: String): SbtParser.ParseResult[SbtDependency] = SbtParser.parse(SbtParser.dep, s)
+  }
+
+  def parse(s: String) = new SbtTransformer().parse(s)
 }
 
-class SbtDependencyParser extends RegexParsers {
+trait SbtDependencyParser extends RegexParsers {
   def string = '\"' ~> """[^\n"]*""".r <~ '\"'
 
   def artifact: Parser[(String, Boolean)] = """%{1,2}\s*""".r ~ string ^^ {case a ~ b => (b, a.startsWith("%%"))}

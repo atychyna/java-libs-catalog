@@ -1,23 +1,22 @@
+@()(implicit ctx: views.util.ViewContext)
 <div class="navbar navbar-fixed-top">
     <div class="navbar-inner">
         <div class="container-fluid">
             <form class="navbar-search pull-left form-inline">
                 <input type="text" class="search-query" placeholder="Search">
-                <label class="checkbox">
-                    <input type="checkbox" checked="true">Java
-                </label>
-                <label class="checkbox">
-                    <input type="checkbox" checked="true">Scala
-                </label>
             </form>
             <div class="nav-collapse collapse">
+                @if(!ctx.isAnonymous) {
                 <p class="navbar-text pull-right">
-                    Logged in as <a href="#" class="navbar-link">Username</a>
+                    Logged in as <a href="#" class="navbar-link">@ctx.user.get.name.getOrElse(ctx.user.get.login)</a>
                 </p>
+                }
                 <ul class="nav">
                     <li><a href="@routes.Application.index">Home</a></li>
-                    <li><a href="@routes.Application.allProjects">Projects</a></li>
-                    <li><a href="@routes.AddProject.index">Add project</a></li>
+                    <li><a href="@routes.Application.projects(None)">Projects</a></li>
+                    @if(!ctx.isAnonymous) {
+                        <li><a href="@routes.AddProject.index">Add project</a></li>
+                    }
                     <li><a href="#contact">Contact</a></li>
                 </ul>
             </div><!--/.nav-collapse -->

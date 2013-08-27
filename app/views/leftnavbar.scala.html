@@ -1,9 +1,9 @@
-@(categories: Seq[model.Category], projectCount: model.Category => Int)
+@(categories: Seq[model.Category])
 
 @import model._
 
 @link(c:Category) = {
-    @defining(projectCount(c)) { count =>
+    @defining(c.projectCount.getOrElse(0)) { count =>
             @if(count > 0) {
                 <li><a href="@routes.Application.projects(Some(c.urlFriendlyName))">@c.name (@count)</a></li>
             } else {

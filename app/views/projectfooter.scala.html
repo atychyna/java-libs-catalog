@@ -10,9 +10,8 @@
         @for(l <- p.languages) {
         <span class="label">@l</span>
         }}
-        @for(c <- p.categories;
-        cat <- ctx.categoryById(c)) {
-        <span class="label">@cat.name</span>
+        @for(c <- p.categoryNames) {
+        <span class="label">@c</span>
         }
     </div>
 </div>

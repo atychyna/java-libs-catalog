@@ -15,7 +15,14 @@ trait ProjectService {
 
   def findByName(name: String, ignoreCase: Boolean = true): Option[Project]
 
-  def countInCategory(c: Category): Int
+  def countInCategory(c: Category): Int = {
+    def countRecursively(c: Category): Int = {
+      findByCategory(c).size + c.children.map(countRecursively).sum
+    }
+    countRecursively(c)
+  }
 
   def save(p: Project): Either[Exception, Project]
+
+  def update(p: Project): Either[Exception, Project]
 }

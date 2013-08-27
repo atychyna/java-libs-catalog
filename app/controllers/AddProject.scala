@@ -1,16 +1,17 @@
 package controllers
 
-import play.api.mvc.{Result, Action}
+import play.api.mvc.Result
 import play.api.data.Form
 import play.api.data.Forms._
-import scala.Some
-import model.{SbtDependency, MavenScope, MavenDependency, Project}
+import model._
 import com.google.inject.{Singleton, Inject}
 import service.{ProjectImporter, ProjectService, CategoryService}
-import play.api.libs.concurrent.Execution.Implicits._
 import play.api.cache.Cache
 import org.bson.types.ObjectId
 import java.io.FileInputStream
+import model.MavenDependency
+import scala.Some
+import model.Project
 
 /**
  * Add new project workflow is '''uploadPom -> reviewProject -> createProject''' (for import from Maven POM) or
@@ -22,6 +23,7 @@ import java.io.FileInputStream
 class AddProject @Inject()(val categoryService: CategoryService,
                            val projectService: ProjectService,
                            val projectImporter: ProjectImporter) extends BaseController {
+  implicit val ctxBuilder = ViewContextBuilder(categoryService, projectService)
   val SessionKeyReviewProject = "_projectid"
   val CacheKeyPrefixReviewProject = "review.item."
   val addProjectForm = Form(
@@ -46,13 +48,13 @@ class AddProject @Inject()(val categoryService: CategoryService,
         Some(p.id.toString, p.name, p.url, p.description, p.categories.map(_.toString).toList, p.mavenDependency, p.sbtDependency.map(_.dependencyDefinition)))
   )
 
-  def index = Action {
-    implicit r =>
+  def index = AsyncAction {
+    implicit ctx =>
       Ok(views.html.addproject(addProjectForm.fill(Project(name = "", description = "", url = "")), step = 0))
   }
 
   def uploadPom = AsyncAction(parse.multipartFormData) {
-    implicit request =>
+    implicit request => implicit ctx =>
       request.body.file("pom").map {
         p => projectImporter.importFromMavenPOM(new FileInputStream(p.ref.file))
       }.map {
@@ -64,8 +66,8 @@ class AddProject @Inject()(val categoryService: CategoryService,
       }.getOrElse(BadRequest("No pom.xml uploaded"))
   }
 
-  def reviewProject = Action {
-    implicit r =>
+  def reviewProject = AsyncAction(parse.anyContent) {
+    implicit request => implicit ctx =>
       import play.api.Play.current
       // user submits form with project data
       addProjectForm.bindFromRequest.fold(
@@ -82,8 +84,8 @@ class AddProject @Inject()(val categoryService: CategoryService,
       )
   }
 
-  def createProject = AsyncAction {
-    implicit r =>
+  def createProject = AsyncAction(parse.anyContent) {
+    implicit request => implicit ctx =>
       import play.api.Play.current
       session.get(SessionKeyReviewProject).fold[Result](BadRequest("No project under review found in session")) {
         i =>
