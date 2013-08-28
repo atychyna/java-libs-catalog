@@ -1,0 +1,6 @@
+@(a: views.util.Alert)
+@import views.util.Alert
+<div class="alert alert-@a.t">
+    <button type="button" class="close" data-dismiss="alert">&times;</button>
+    @a.text
+</div>

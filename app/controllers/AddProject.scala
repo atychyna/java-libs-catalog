@@ -95,7 +95,7 @@ class AddProject @Inject()(val categoryService: CategoryService,
               Cache.remove(i)
               projectService.save(p) match {
                 case Some(e) => InternalServerError(s"Error saving $p: ${e.getMessage}")
-                case _ => Ok(views.html.addprojectdone(p)).withNewSession
+                case _ => Redirect(routes.Application.project(p.name, true)).withNewSession
               }
             }
           }.getOrElse(NotFound(s"No product with id $i found in review cache"))

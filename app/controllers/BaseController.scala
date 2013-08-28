@@ -17,12 +17,16 @@ trait BaseController extends Controller {
     request =>
       Async {
         val ctx = b.build
-        val context = userFromRequest(request).fold(ctx) {u => ctx.copy(user = Some(u))}
+        val context = if (ctx.user.isEmpty) userFromRequest(request).fold(ctx) {u => ctx.copy(user = Some(u))} else ctx
         future(f(request)(context))
       }
   }
 
   def AsyncAction(f: ViewContext => Result)(implicit b: ViewContextBuilder): Action[AnyContent] = AsyncAction(parse.anyContent)(_ => f)
+
+  def AsyncAction(f: => Result)(implicit ctx: ViewContext): Action[AnyContent] = AsyncAction(parse.anyContent)(_ => ctx => f)(new ViewContextBuilder {
+    val build = ctx
+  })
 
   def Auth(f: ViewContext => Action[AnyContent])(implicit b: ViewContextBuilder): Action[AnyContent] = {
     Action {
@@ -47,6 +51,6 @@ object ViewContextBuilder {
     private def withProjectCounts(c: Category): Category =
       c.copy(projectCount = Some(projectService.countInCategory(c)), children = c.children.map(withProjectCounts))
 
-    val build = ViewContext(categoryService.all.map(withProjectCounts))
+    def build = ViewContext(categoryService.all.map(withProjectCounts))
   }
 }

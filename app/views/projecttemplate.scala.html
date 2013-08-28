@@ -24,19 +24,19 @@
 </dl>
 @if(project.scm.isDefined) {
     <h3>Source code</h3>
-    <pre>@project.scm.get</pre>
+    <code>@project.scm.get</code>
 }
 @if(project.hasDependencies) {
     <h3>Dependencies</h3>
     @if(project.mavenDependency.isDefined) {
     @defining(project.mavenDependency.get) { d=>
         <h4>Maven</h4>
-        <pre>@d.dependencyDefinition</pre>
+        <pre class="brush: xml; gutter: false;">@d.dependencyDefinition</pre>
     }}
     @defining(project.sbtDependency orElse {project.mavenDependency map fromMavenDependency}) { d=>
     @if(d.isDefined) {
         <h4>SBT</h4>
-        <pre>libraryDependencies += @d.get.dependencyDefinition</pre>
+        <pre class="brush: scala; gutter: false;">libraryDependencies += @d.get.dependencyDefinition</pre>
     }}
 }
 @projectfooter(project, true, false)

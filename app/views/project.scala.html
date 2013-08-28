@@ -1,10 +1,14 @@
-@(project: model.Project)(implicit ctx: views.util.ViewContext)
+@(project: model.Project, alerts: Seq[views.util.Alert]=Seq())(implicit ctx: views.util.ViewContext)
 
 @import model._
 @import SbtDependency._
 @import scala.xml.Utility._
 
 @scripts = {
+<script src="@routes.Assets.at("javascripts/bootbox.min.js")"></script>
+<script src="@routes.Assets.at("javascripts/syntaxhighlight/shCore.js")"></script>
+<script src="@routes.Assets.at("javascripts/syntaxhighlight/shBrushXml.js")"></script>
+<script src="@routes.Assets.at("javascripts/syntaxhighlight/shBrushScala.js")"></script>
 <script lang="text/javascript">
     var projectModel = {
         showAddComment: ko.observable(false),
@@ -12,15 +16,29 @@
         toggleAddComment: function() {
             this.showNewComment(!this.showNewComment());
             this.showAddComment(!this.showAddComment());
+        },
+        confirmProjectDelete: function() {
+            bootbox.confirm("Are you sure you want to delete project \"@project.name\"?", function(result) {
+               if (result) $("#deleteForm").submit();
+            });
         }
     }
     $(function() {
         ko.applyBindings(projectModel);
+        SyntaxHighlighter.all();
     });
 </script>
 }
 
+@styleLinks = {
+<link href="@routes.Assets.at("stylesheets/syntaxhighlight/shCore.css")" rel="stylesheet" type="text/css" />
+<link href="@routes.Assets.at("stylesheets/syntaxhighlight/shThemeDefault.css")" rel="stylesheet" type="text/css" />
+}
+
 @styles = {
+    .fuelux code {
+        font-size: 14px;
+    }
     .comment-textarea {
         width:446px!important;
     }
@@ -54,12 +72,14 @@
     }
 }
 
-@maintemplate(scripts, styles) {
+@maintemplate(scripts, styles, styleLinks, alerts) {
     @projecttemplate(project)
     @if(!ctx.isAnonymous) {
-        <div class="btn-group">
-            <button class="btn btn-danger" data-bind="click: function() {alert('adasd');}">Delete Project</button>
-        </div>
+        @helper.form(action = routes.Application.deleteProject(project.name), 'id -> "deleteForm") {
+            <div class="btn-group">
+                <button class="btn btn-danger" data-bind="click: confirmProjectDelete">Delete Project</button>
+            </div>
+        }
     }
     <hr/>
     <h3>Comments</h3>

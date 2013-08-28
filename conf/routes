@@ -5,7 +5,8 @@
 # Main pages
 GET     /                           @controllers.Application.index
 GET     /projects                   @controllers.Application.projects(category: Option[String])
-GET     /projects/:name             @controllers.Application.project(name: String)
+GET     /projects/:name             @controllers.Application.project(name: String, isNew: Boolean ?= false)
+POST    /projects/:name/delete      @controllers.Application.deleteProject(name: String)
 POST    /addcomment                 @controllers.Application.addComment
 
 # Add (import) project

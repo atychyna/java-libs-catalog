@@ -6,6 +6,9 @@
 
 @scripts = {
 <script src="@routes.Assets.at("javascripts/bootstrap-fileupload.min.js")"></script>
+<script src="@routes.Assets.at("javascripts/syntaxhighlight/shCore.js")"></script>
+<script src="@routes.Assets.at("javascripts/syntaxhighlight/shBrushXml.js")"></script>
+<script src="@routes.Assets.at("javascripts/syntaxhighlight/shBrushScala.js")"></script>
 <script lang="text/javascript">
 ko.validation.configure({
     registerExtenders: true,
@@ -52,6 +55,7 @@ function WizardObject(e)  {
 $(function() {
     ko.applyBindings(importModel, $('#step1').get(0));
     ko.applyBindings(createModel, $('#step2').get(0));
+    SyntaxHighlighter.all();
 
     $('.selectpicker').selectpicker({style: "input-xlarge"});
     @if(!pf("categories").indexes.isEmpty) {
@@ -80,7 +84,15 @@ $(function() {
 </script>
 }
 
+@styleLinks = {
+<link href="@routes.Assets.at("stylesheets/syntaxhighlight/shCore.css")" rel="stylesheet" type="text/css" />
+<link href="@routes.Assets.at("stylesheets/syntaxhighlight/shThemeDefault.css")" rel="stylesheet" type="text/css" />
+}
+
 @styles = {
+    .fuelux code {
+        font-size: 14px;
+    }
     .step-content {
         border: 1px solid #D4D4D4;
         border-top: 0;
@@ -90,7 +102,7 @@ $(function() {
     }
 }
 
-@maintemplate(scripts, styles) {
+@maintemplate(scripts, styles, styleLinks) {
     <div id="MyWizard" class="wizard">
         <ul class="steps">
             <li data-target="#step1" class="active"><span class="badge badge-info">1</span>Import from<span class="chevron"></span></li>

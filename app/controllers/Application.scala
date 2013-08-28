@@ -8,6 +8,8 @@ import model.{Project, Comment}
 import org.bson.types.ObjectId
 import play.api.mvc.Result
 import eu.henkelmann.actuarius.ActuariusTransformer
+import views.util.Alert
+import play.api.templates.Html
 
 
 @Singleton
@@ -25,10 +27,10 @@ class Application @Inject()(val categoryService: CategoryService,
     implicit ctx => Ok(views.html.index.apply(projectService.all))
   }
 
-  def project(name: String) = AsyncAction {
+  def project(name: String, isNewProject: Boolean = false) = AsyncAction {
     implicit ctx =>
       projectService.findByName(unfriendlyString(name)).map({
-        project => Ok(views.html.project(withCategoryNames(project)))
+        p => Ok(views.html.project(withCategoryNames(p), if (isNewProject) Seq(Alert(Html(s"Project <strong>${p.name}</strong> successfully created."), "success")) else Seq()))
       }).getOrElse(NotFound(s"Project with name ${'"'}$name${'"'} doesn't exist"))
   }
 
@@ -43,12 +45,14 @@ class Application @Inject()(val categoryService: CategoryService,
       }
   }
 
-  def deleteProject(id: ObjectId) = AsyncAction {
-    implicit ctx =>
-      projectService.delete(id) match {
-        case Some(e) => InternalServerError(s"Can't delete project with id $id")
-        case _ => Redirect(routes.Application.index())
-      }
+  def deleteProject(name: String) = Auth {
+    implicit ctx => AsyncAction {
+      projectService.findByName(name).map(p =>
+        projectService.delete(p.id) match {
+          case Some(e) => InternalServerError(s"Can't delete project ${'"'}$name${'"'}: $e.getMessage")
+          case _ => Redirect(routes.Application.index())
+        }).getOrElse(NotFound(s"Project ${'"'}$name${'"'} not found"))
+    }
   }
 
   val commentForm = Form(mapping(
