@@ -94,8 +94,8 @@ class AddProject @Inject()(val categoryService: CategoryService,
               // step2: remove project stored during step1 from temp storage
               Cache.remove(i)
               projectService.save(p) match {
-                case Left(e) => InternalServerError(s"Error saving $p: ${e.getMessage}")
-                case Right(pr) => Ok(views.html.addprojectdone(pr)).withNewSession
+                case Some(e) => InternalServerError(s"Error saving $p: ${e.getMessage}")
+                case _ => Ok(views.html.addprojectdone(p)).withNewSession
               }
             }
           }.getOrElse(NotFound(s"No product with id $i found in review cache"))

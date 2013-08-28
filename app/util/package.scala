@@ -15,11 +15,11 @@ package object util {
 
   def stringForUrl(s: String) = s.toLowerCase.replaceAllLiterally(" ", "-")
 
-  def checkError[T](r: WriteResult)(t: => T): Either[Exception, T] = {
+  def checkError[T](r: WriteResult): Option[Exception] = {
     if (r.getError != null) {
-      Left(new RuntimeException(r.getError))
+      Some(new RuntimeException(r.getError))
     } else {
-      Right(t)
+      None
     }
   }
 }

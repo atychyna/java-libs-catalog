@@ -43,6 +43,14 @@ class Application @Inject()(val categoryService: CategoryService,
       }
   }
 
+  def deleteProject(id: ObjectId) = AsyncAction {
+    implicit ctx =>
+      projectService.delete(id) match {
+        case Some(e) => InternalServerError(s"Can't delete project with id $id")
+        case _ => Redirect(routes.Application.index())
+      }
+  }
+
   val commentForm = Form(mapping(
     "projectId" -> nonEmptyText,
     "comment" -> nonEmptyText
@@ -59,8 +67,8 @@ class Application @Inject()(val categoryService: CategoryService,
             value => {
               projectService.findById(value._1).fold[Result](BadRequest(s"Project with id $value._1 not found")) {
                 p => projectService.update(p.copy(comments = p.comments ++ Seq(value._2(u.name.getOrElse(u.login))))) match {
-                  case Left(e) => InternalServerError(s"Error updating project: ${e.getMessage}")
-                  case Right(pr) => Redirect(routes.Application.project(pr.urlFriendlyName).url + s"#comment${pr.comments.length - 1}")
+                  case Some(e) => InternalServerError(s"Error updating project: ${e.getMessage}")
+                  case _ => Redirect(routes.Application.project(p.urlFriendlyName).url + s"#comment${p.comments.length - 1}")
                 }
               }
             }

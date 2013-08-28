@@ -22,7 +22,9 @@ trait ProjectService {
     countRecursively(c)
   }
 
-  def save(p: Project): Either[Exception, Project]
+  def save(p: Project): Option[Exception]
 
-  def update(p: Project): Either[Exception, Project]
+  def update(p: Project): Option[Exception]
+
+  def delete(id: ObjectId): Option[Exception]
 }

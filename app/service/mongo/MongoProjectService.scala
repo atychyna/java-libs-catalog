@@ -23,13 +23,15 @@ class MongoProjectService @Inject()(categoryService: CategoryService, val salatD
 
   def save(p: Project) = {
     if (findByName(p.name).isDefined) {
-      Left(new IllegalArgumentException(s"Project with name '$p.name' already exist"))
+      Some(new IllegalArgumentException(s"Project with name '$p.name' already exist"))
     } else {
-      util.checkError(companion.save(p))(p)
+      util.checkError(companion.save(p))
     }
   }
 
   def update(p: Project) = {
-    util.checkError(companion.update(MongoDBObject("_id" -> p.id), p, false, false, new WriteConcern))(p)
+    util.checkError(companion.update(MongoDBObject("_id" -> p.id), p, false, false, new WriteConcern))
   }
+
+  def delete(id: ObjectId): Option[Exception] = util.checkError(companion.removeById(id))
 }
