@@ -12,6 +12,7 @@ import java.io.FileInputStream
 import model.MavenDependency
 import scala.Some
 import model.Project
+import eu.henkelmann.actuarius.ActuariusTransformer
 
 /**
  * Add new project workflow is '''uploadPom -> reviewProject -> createProject''' (for import from Maven POM) or
@@ -24,6 +25,7 @@ class AddProject @Inject()(val categoryService: CategoryService,
                            val projectService: ProjectService,
                            val projectImporter: ProjectImporter) extends BaseController {
   implicit val ctxBuilder = ViewContextBuilder(categoryService, projectService)
+  private val markdownTransformer = new ActuariusTransformer
   val SessionKeyReviewProject = "_projectid"
   val CacheKeyPrefixReviewProject = "review.item."
   val addProjectForm = Form(
@@ -43,7 +45,7 @@ class AddProject @Inject()(val categoryService: CategoryService,
         (d => Some(d.groupId, d.artifactId, d.version, d.scope.toString))),
       "sbt" -> optional(text.verifying("Incorrect value", SbtDependency.parse(_).successful)))
       ((id, name, url, desc, cats, maven, sbt) =>
-        Project(id = new ObjectId(id), name = name, url = url, description = desc, categories = cats.map(new ObjectId(_)), mavenDependency = maven, sbtDependency = sbt.map(SbtDependency.parse(_).get)))
+        Project(id = new ObjectId(id), name = name, url = url, description = markdownTransformer(desc), categories = cats.map(new ObjectId(_)), mavenDependency = maven, sbtDependency = sbt.map(SbtDependency.parse(_).get)))
       (p =>
         Some(p.id.toString, p.name, p.url, p.description, p.categories.map(_.toString).toList, p.mavenDependency, p.sbtDependency.map(_.dependencyDefinition)))
   )

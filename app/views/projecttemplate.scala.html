@@ -5,9 +5,11 @@
 @import scala.xml.Utility._
 
 <div class="page-header">
-    <h1>@project.name <small>@project.languages.mkString(" ")</small></h1>
+    <h1>@project.name
+        <small>@project.languages.mkString(" ")</small>
+    </h1>
 </div>
-<p>@project.description</p>
+<p>@Html(project.description)</p>
 <dl class="dl-horizontal">
     <dt>Version:</dt>
     <dd>3.0.4</dd>
@@ -23,20 +25,22 @@
     }
 </dl>
 @if(project.scm.isDefined) {
-    <h3>Source code</h3>
-    <code>@project.scm.get</code>
+<h3>Source code</h3>
+<p><code>@project.scm.get</code></p>
 }
 @if(project.hasDependencies) {
-    <h3>Dependencies</h3>
-    @if(project.mavenDependency.isDefined) {
-    @defining(project.mavenDependency.get) { d=>
-        <h4>Maven</h4>
-        <pre class="brush: xml; gutter: false;">@d.dependencyDefinition</pre>
-    }}
-    @defining(project.sbtDependency orElse {project.mavenDependency map fromMavenDependency}) { d=>
-    @if(d.isDefined) {
-        <h4>SBT</h4>
-        <pre class="brush: scala; gutter: false;">libraryDependencies += @d.get.dependencyDefinition</pre>
-    }}
+<h3>Dependencies</h3>
+@if(project.mavenDependency.isDefined) {
+@defining(project.mavenDependency.get) { d=>
+<h4>Maven</h4>
+<p>
+<pre class="brush: xml; gutter: false;">@d.dependencyDefinition</pre></p>
+}}
+@defining(project.sbtDependency orElse {project.mavenDependency map fromMavenDependency}) { d=>
+@if(d.isDefined) {
+<h4>SBT</h4>
+<p>
+<pre class="brush: scala; gutter: false;">libraryDependencies += @d.get.dependencyDefinition</pre></p>
+}}
 }
 @projectfooter(project, true, false)

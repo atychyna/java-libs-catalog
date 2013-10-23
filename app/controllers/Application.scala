@@ -2,12 +2,7 @@ package controllers
 
 import service.{ProjectService, CategoryService}
 import com.google.inject.{Inject, Singleton}
-import play.api.data.Form
-import play.api.data.Forms._
-import model.{Project, Comment}
-import org.bson.types.ObjectId
-import play.api.mvc.Result
-import eu.henkelmann.actuarius.ActuariusTransformer
+import model.Project
 import views.util.Alert
 import play.api.templates.Html
 
@@ -17,7 +12,6 @@ class Application @Inject()(val categoryService: CategoryService,
                             val projectService: ProjectService) extends BaseController {
 
   implicit val ctxBuilder = ViewContextBuilder(categoryService, projectService)
-  private val markdownTransformer = new ActuariusTransformer
 
   private def withCategoryNames(p: Project) = p.copy(categoryNames = p.categories.map(categoryService.findById).flatten.map(_.name).toSet)
 
@@ -53,30 +47,5 @@ class Application @Inject()(val categoryService: CategoryService,
           case _ => Redirect(routes.Application.index())
         }).getOrElse(NotFound(s"Project ${'"'}$name${'"'} not found"))
     }
-  }
-
-  val commentForm = Form(mapping(
-    "projectId" -> nonEmptyText,
-    "comment" -> nonEmptyText
-  )((projectId, comment) => (new ObjectId(projectId), Comment(_: String, markdownTransformer(comment))))
-  ({case (a: ObjectId, b: Comment) => Some((a.toString, b.text))}))
-
-  def addComment = Auth {
-    implicit ctx =>
-      val u = ctx.user.get
-      AsyncAction(parse.anyContent) {
-        implicit request => c =>
-          commentForm.bindFromRequest.fold(
-            formWithErrors => BadRequest("Validation failed"),
-            value => {
-              projectService.findById(value._1).fold[Result](BadRequest(s"Project with id $value._1 not found")) {
-                p => projectService.update(p.copy(comments = p.comments ++ Seq(value._2(u.name.getOrElse(u.login))))) match {
-                  case Some(e) => InternalServerError(s"Error updating project: ${e.getMessage}")
-                  case _ => Redirect(routes.Application.project(p.urlFriendlyName).url + s"#comment${p.comments.length - 1}")
-                }
-              }
-            }
-          )
-      }
   }
 }

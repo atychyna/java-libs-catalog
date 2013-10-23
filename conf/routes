@@ -7,7 +7,8 @@ GET     /                           @controllers.Application.index
 GET     /projects                   @controllers.Application.projects(category: Option[String])
 GET     /projects/:name             @controllers.Application.project(name: String, isNew: Boolean ?= false)
 POST    /projects/:name/delete      @controllers.Application.deleteProject(name: String)
-POST    /addcomment                 @controllers.Application.addComment
+POST    /addcomment                 @controllers.Comments.addComment
+POST    /comment/:projectId/:commentId   @controllers.Comments.deleteComment(projectId: ObjectId, commentId: ObjectId)
 
 # Add (import) project
 GET     /addproject                 @controllers.AddProject.index

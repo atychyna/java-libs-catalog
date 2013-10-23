@@ -3,8 +3,8 @@
 @import model._
 
 @for(p <- projects) {
-    <h2><a href="@routes.Application.project(p.urlFriendlyName)">@p.name</a></h2>
-    <p>@p.description</p>
-    @projectfooter(p)
-    <hr>
+<h2><a href="@routes.Application.project(p.urlFriendlyName)">@p.name</a></h2>
+<p>@Html(p.description)</p>
+@projectfooter(p)
+<hr>
 }

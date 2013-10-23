@@ -3,115 +3,147 @@
 @import model._
 @import SbtDependency._
 @import scala.xml.Utility._
+@import org.joda.time.format.{DateTimeFormatter, DateTimeFormat}
 
 @scripts = {
-<script src="@routes.Assets.at("javascripts/bootbox.min.js")"></script>
-<script src="@routes.Assets.at("javascripts/syntaxhighlight/shCore.js")"></script>
-<script src="@routes.Assets.at("javascripts/syntaxhighlight/shBrushXml.js")"></script>
-<script src="@routes.Assets.at("javascripts/syntaxhighlight/shBrushScala.js")"></script>
+<script src="@routes.Assets.at(" javascripts/bootbox.min.js")"></script>
+<script src="@routes.Assets.at(" javascripts/syntaxhighlight/shCore.js")"></script>
+<script src="@routes.Assets.at(" javascripts/syntaxhighlight/shBrushXml.js")"></script>
+<script src="@routes.Assets.at(" javascripts/syntaxhighlight/shBrushScala.js")"></script>
 <script lang="text/javascript">
     var projectModel = {
-        showAddComment: ko.observable(false),
-        showNewComment: ko.observable(true),
-        toggleAddComment: function() {
-            this.showNewComment(!this.showNewComment());
-            this.showAddComment(!this.showAddComment());
-        },
-        confirmProjectDelete: function() {
-            bootbox.confirm("Are you sure you want to delete project \"@project.name\"?", function(result) {
-               if (result) $("#deleteForm").submit();
-            });
-        }
+    showAddComment: ko.observable(false),
+    toggleAddComment: function() {
+    this.showAddComment(!this.showAddComment());
+    },
+    confirmProjectDelete: function() {
+    bootbox.confirm("Are you sure you want to delete project \"@project.name\"?", function(result) {
+    if (result) $("#deleteProjectForm").submit();
+    });
+    },
+    confirmCommentDelete: function(action) {
+    bootbox.confirm("Are you sure you want to delete your comment?", function(result) {
+    if (result) {
+    var f = $("#deleteCommentForm");
+    f.attr("action", action);
+    f.submit();
+    }
+    });
+    }
     }
     $(function() {
-        ko.applyBindings(projectModel);
-        SyntaxHighlighter.all();
+    ko.applyBindings(projectModel);
+    SyntaxHighlighter.all();
     });
 </script>
 }
 
 @styleLinks = {
-<link href="@routes.Assets.at("stylesheets/syntaxhighlight/shCore.css")" rel="stylesheet" type="text/css" />
-<link href="@routes.Assets.at("stylesheets/syntaxhighlight/shThemeDefault.css")" rel="stylesheet" type="text/css" />
+<link href="@routes.Assets.at(" stylesheets/syntaxhighlight/shCore.css")" rel="stylesheet" type="text/css" />
+<link href="@routes.Assets.at(" stylesheets/syntaxhighlight/shThemeDefault.css")" rel="stylesheet" type="text/css" />
 }
 
 @styles = {
-    .fuelux code {
-        font-size: 14px;
-    }
-    .comment-textarea {
-        width:446px!important;
-    }
-    .comment-div {
-        margin-top: 10px;
-        width: 460px!important;
-    }
-    .avatar-div {
-        width: 100px!important;
-        text-align: center;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        overflow: hidden;
-    }
-    .avatar-image {
-        width:60px;
-        margin: 0 auto;
-    }
-    .comment.well {
-        padding: 10px;
-    }
-    .comment td {
-        vertical-align:top;
-        padding-right:10px;
-    }
-    .comment td.text {
-        padding-left: 10px;
-    }
-    .btn-group {
-        padding-top: 20px;
-    }
+.fuelux code {
+font-size: 14px;
+}
+.comment-textarea {
+width:446px!important;
+}
+.comment-div {
+margin-top: 10px;
+width: 460px!important;
+}
+.avatar-div {
+width: 100px!important;
+text-align: center;
+text-overflow: ellipsis;
+white-space: nowrap;
+overflow: hidden;
+}
+.avatar-image {
+width:60px;
+margin: 0 auto;
+}
+.comment.well {
+padding: 10px;
+}
+.comment td {
+vertical-align:top;
+padding-right:10px;
+}
+.comment td.text {
+padding-left: 10px;
+width: 100%;
+}
+.comment td.text .container-fluid {
+padding-left: 0px;
+}
+.comment td.text .btn-group {
+padding-top: 0px;
+}
+.btn-group {
+padding-top: 20px;
+}
 }
 
 @maintemplate(scripts, styles, styleLinks, alerts) {
-    @projecttemplate(project)
-    @if(!ctx.isAnonymous) {
-        @helper.form(action = routes.Application.deleteProject(project.name), 'id -> "deleteForm") {
-            <div class="btn-group">
-                <button class="btn btn-danger" data-bind="click: confirmProjectDelete">Delete Project</button>
-            </div>
+@projecttemplate(project)
+@if(!ctx.isAnonymous) {
+@helper.form(action = routes.Application.deleteProject(project.name), 'id -> "deleteProjectForm") {
+<div class="btn-group">
+    <button class="btn btn-danger" data-bind="click: confirmProjectDelete">Delete Project</button>
+</div>
+}
+}
+<hr/>
+<h3>Comments</h3>
+<form id="deleteCommentForm" method="POST"></form>
+@defining(DateTimeFormat.forPattern("dd MMM yyyy HH:mm")) { dateTimeFormat =>
+@for((c,i) <- project.comments.zipWithIndex) {
+<a name="comment@i"></a>
+<div class="comment well">
+    <table>
+        <tr>
+            <td class="avatar">
+                <div class="avatar-div">
+                    <div class="avatar-image"><a href="http://critterapp.pagodabox.com/others/admin"
+                                                 class="thumbnail"><img
+                            src="http://critterapp.pagodabox.com/img/user.jpg" alt=""></a></div>
+                    <small><strong>@c.author</strong></small>
+                </div>
+            </td>
+            <td class="text">
+                <div class="container-fluid">
+                    <p class="pull-left">
+                        <small><em>@c.author</em> wrote on <strong>@dateTimeFormat.print(c.created)</strong></small>
+                    </p>
+                    <div class="btn-group pull-right">
+                        <button class="btn btn-mini"
+                                data-bind="click: confirmCommentDelete.bind($data, '@routes.Comments.deleteComment(project.id, c.id)')">
+                            <i class="icon-remove"></i>Delete comment
+                        </button>
+                    </div>
+                </div>
+                <p>@Html(c.text)</p>
+            </td>
+        </tr>
+    </table>
+</div>
+}}
+@if(!ctx.isAnonymous) {
+<button class="btn btn-info" data-bind="visible: !showAddComment(), click: toggleAddComment">Post New Comment</button>
+<div class="row-fluid" data-bind="visible: showAddComment">
+    <div class="well span12">
+        @helper.form(action = routes.Comments.addComment, 'id -> "commentForm") {
+        <input type="hidden" name="commentId" value=''/>
+        <input type="hidden" name="projectId" value='@project.id'/>
+        <textarea class="span12" id="new_message" name="comment"
+                  placeholder="Type in your message" rows="5"></textarea>
+        <button class="btn btn-info" type="submit">Add Comment</button>
+        <button class="btn" type="button" data-bind="click: toggleAddComment">Cancel</button>
         }
-    }
-    <hr/>
-    <h3>Comments</h3>
-    @for((c,i) <- project.comments.zipWithIndex) {
-        <div class="comment well" id="comment@i">
-            <table>
-                <tr>
-                    <td class="avatar">
-                        <div class="avatar-div"><div class="avatar-image"><a href="http://critterapp.pagodabox.com/others/admin" class="thumbnail"><img
-                                src="http://critterapp.pagodabox.com/img/user.jpg" alt=""></a></div>
-                            <small><strong>@c.author</strong></small>
-                        </div>
-                    </td>
-                    <td class="text">
-                        <p>@Html(c.text)</p>
-                    </td>
-                </tr>
-            </table>
-        </div>
-    }
-    @if(!ctx.isAnonymous) {
-        <button class="btn btn-info" data-bind="visible: showNewComment, click: toggleAddComment">Post New Comment</button>
-        <div class="row-fluid" data-bind="visible: showAddComment">
-            <div class="well span12">
-                @helper.form(action = routes.Application.addComment, 'id -> "commentForm") {
-                    <input type="hidden" name="projectId" value='@project.id'/>
-                    <textarea class="span12" id="new_message" name="comment"
-                              placeholder="Type in your message" rows="5"></textarea>
-                    <button class="btn btn-info" type="submit">Add Comment</button>
-                    <button class="btn" type="button" data-bind="click: toggleAddComment">Cancel</button>
-                }
-            </div>
-        </div>
-    }
+    </div>
+</div>
+}
 }

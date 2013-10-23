@@ -1,10 +1,14 @@
 @(p: model.Project, withCreated: Boolean = false, withLanguages: Boolean = true)(implicit ctx: views.util.ViewContext)
+@import org.joda.time.format.{DateTimeFormatter, DateTimeFormat}
+
+@defining(DateTimeFormat.forPattern("dd MMMM yyyy")) { dateTimeFormat =>
 
 <div class="project-footer">
     @if(withCreated) {
-    <span class="badge">Created @ctx.dateTimeFormat.print(p.created)</span>
+    <span class="badge">Created @dateTimeFormat.print(p.created)</span>
     }
-    <span class="badge badge-success">Updated @ctx.dateTimeFormat.print(p.lastModified)</span>
+    <span class="badge badge-success">Updated @dateTimeFormat.print(p.lastModified)</span>
+
     <div class="pull-right">
         @if(withLanguages) {
         @for(l <- p.languages) {
@@ -15,3 +19,4 @@
         }
     </div>
 </div>
+}

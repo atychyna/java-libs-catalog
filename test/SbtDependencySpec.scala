@@ -1,13 +1,13 @@
 import model.SbtDependency
 import org.specs2.matcher.Matcher
 import org.specs2.mutable.Specification
-import SbtDependency.SbtParser.ParseResult
+import scala.util.parsing.combinator.Parsers
 
 /**
  * @author Anton Tychyna
  */
 class SbtDependencySpec extends Specification {
-  val beSuccess: Matcher[ParseResult[_]] = ((_: ParseResult[_]).successful, "parsing was unsucessfull")
+  val beSuccess: Matcher[Parsers#ParseResult[_]] = ((_: Parsers#ParseResult[_]).successful, "parsing was unsucessfull")
 
   "SbtDependency" should {
     """parse "a" % "aa" % "1.0"""" in {

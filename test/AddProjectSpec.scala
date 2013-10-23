@@ -1,19 +1,11 @@
-import com.novus.salat.dao.SalatDAO
-import com.tzavellas.sse.guice.ScalaModule
 import controllers.AddProject
-import model.{Project, Category}
 import org.bson.types.ObjectId
 import org.specs2.mutable._
-import play.api.Application
 import play.api.http.MimeTypes
-import play.api.test.FakeApplication
-import play.api.test.{FakeRequest, FakeApplication}
+import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import configuration.{injector => i, _}
-import se.radley.plugin.salat._
-import service.maven.MavenImporter
-import service.mongo.{MongoDataImporter, MongoProjectService, MongoCategoryService}
-import service.{InitialData, CategoryService, ProjectService, ProjectImporter}
+import service.{ProjectService, ProjectImporter}
 import specs.WithGuiceApplication
 
 /**
@@ -43,13 +35,14 @@ class AddProjectSpec extends Specification {
       val result = route(FakeRequest(POST, "/createproject")
         .withHeaders(CONTENT_TYPE -> MimeTypes.FORM, COOKIE -> header(SET_COOKIE, review).get)
         .withFormUrlEncodedBody(form.data.toSeq: _*)).get
-      status(result) must equalTo(OK)
+      status(result) must equalTo(SEE_OTHER)
+      redirectLocation(result) must beSome("/projects/Test+project?isNew=true")
 
       val projectSaved = projectService.findById(project.id)
       projectSaved must beSome
       projectSaved.get.name must beEqualTo(project.name)
       projectSaved.get.url must beEqualTo(project.url)
-      projectSaved.get.description must beEqualTo(project.description)
+      projectSaved.get.description must contain(project.description)
       projectSaved.get.categories must beEqualTo(project.categories)
     }
 
